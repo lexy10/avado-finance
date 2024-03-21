@@ -38,6 +38,7 @@ export class AuthService {
     }
   }
 
+
   async register(requestParams) {
     const isUserExisting = await this.usersService.findOne(requestParams.email_address)
     if (isUserExisting) {
