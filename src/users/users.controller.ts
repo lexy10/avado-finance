@@ -9,7 +9,7 @@ export class UsersController {
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    //return this.usersService.create(createUserDto);
   }
 
   @Get()
@@ -17,9 +17,9 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @Get(':email_address')
+  findOne(@Param('email_address') email_address: string) {
+    return this.usersService.findOne(email_address);
   }
 
   @Patch(':id')
