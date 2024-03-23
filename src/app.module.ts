@@ -7,6 +7,9 @@ import { TransactionsModule } from './transactions/transactions.module';
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {ConfigModule} from "@nestjs/config";
 import {UserEntity} from "./users/entities/user.entity";
+import { EmailModule } from './email/email.module';
+import {EmailService} from "./email/email.service";
+import {SendGridClient} from "./email/sendgrid-client";
 
 @Module({
   imports: [
@@ -30,9 +33,10 @@ import {UserEntity} from "./users/entities/user.entity";
     //TypeOrmModule.forFeature([TradeEntity, SettingsEntity, AccountEntity, AccountOwnerEntity, InstrumentEntity]),
     UsersModule,
     AuthModule,
-    TransactionsModule
+    TransactionsModule,
+    EmailModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, EmailService, SendGridClient],
 })
 export class AppModule {}

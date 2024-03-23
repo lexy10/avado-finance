@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import {JwtModule} from "@nestjs/jwt";
-import {UsersModule} from "../users/users.module";
 import {UsersService} from "../users/users.service";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {UserEntity} from "../users/entities/user.entity";
 import {ConfigModule} from "@nestjs/config";
+import {EmailService} from "../email/email.service";
+import {SendGridClient} from "../email/sendgrid-client";
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import {ConfigModule} from "@nestjs/config";
     TypeOrmModule.forFeature([UserEntity])
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersService],
+  providers: [AuthService, UsersService, EmailService, SendGridClient],
 })
 export class AuthModule {}

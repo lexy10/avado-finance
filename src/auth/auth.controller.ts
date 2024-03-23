@@ -3,10 +3,13 @@ import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import {raw, Request, Response} from "express";
+import {EmailService} from "../email/email.service";
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService,
+              private readonly emailService: EmailService,
+  ) {}
 
   @Post("register")
   async register(@Req() request: Request, @Res() response: Response) {
@@ -43,10 +46,25 @@ export class AuthController {
     //return response
   }
 
-  @Get()
-  login2() {
-    return this.authService.findAll();
-  }
+  @Post('send-test-email')
+  async sendEmail(@Req() request: Request, @Res() response: Response): Promise<void> {
+
+      try {
+        const { recipient, body } = request.body;
+        await this.emailService.sendTestEmail(recipient, body);
+        response.status(HttpStatus.OK).send({
+          status: true,
+          message: 'Email sent successfully',
+        });
+      } catch (error) {
+        console.error('Error sending email:', error);
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+          status: false,
+          message: 'An error occurred while sending the email',
+          error: error.message,
+        });
+      }
+    }
 
   @Get(':id')
   forgotPassword(@Param('id') id: string) {
