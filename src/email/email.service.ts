@@ -1,29 +1,46 @@
 import { Injectable } from '@nestjs/common';
-import { MailDataRequired } from '@sendgrid/mail';
-import { SendGridClient } from './sendgrid-client';
+import {MailerService} from "@nestjs-modules/mailer";
+import {UserEntity} from "../users/entities/user.entity";
 
 @Injectable()
 export class EmailService {
-    constructor(private readonly sendGridClient: SendGridClient) {}
+    constructor(private mailerService: MailerService) {}
 
-    async sendTestEmail(recipient: string, body = 'This is a test mail'): Promise<void> {
-        const mail: MailDataRequired = {
-            to: recipient,
-            from: 'noreply@domain.com', //Approved sender ID in Sendgrid
-            subject: 'Test email',
-            content: [{ type: 'text/plain', value: body }],
-        };
-        await this.sendGridClient.send(mail);
+    async sendUserConfirmation(user: UserEntity, code: string) {
+        //const url = `example.com/auth/confirm?token=${token}`;
+
+        await this.mailerService.sendMail({
+            to: user.email_address,
+            // from: '"Support Team" <support@example.com>', // override default from
+            subject: 'Welcome to Avado Finance! Confirm your Email',
+            template: './confirmation', // `.hbs` extension is appended automatically
+            context: { // ✏️ filling curly brackets with content
+                name: user.full_name,
+                code,
+            },
+        });
     }
 
-    async sendEmailWithTemplate(recipient: string, body: string): Promise<void> {
-        const mail: MailDataRequired = {
+    /*async sendTestEmail(recipient: string, body = 'This is a test mail'): Promise<void> {
+        const options: MailgunMessageData = {
+            from: 'Excited User <me@samples.mailgun.org>',
             to: recipient,
-            cc: 'example@mail.com', //Assuming you want to send a copy to this email
-            from: 'noreply@domain.com', //Approved sender ID in Sendgrid
-            templateId: 'Sendgrid_template_ID', //Retrieve from config service or environment variable
-            dynamicTemplateData: { body, subject: 'Send Email with template' }, //The data to be used in the template
+            subject: 'Test Email',
+            text: body,
+            html: '',
+            attachment: '',
+            cc: '',
+            bcc: '',
+            'o:testmode': 'no',
+            'h:X-Mailgun-Variables': '{"key":"value"}',
         };
-        await this.sendGridClient.send(mail);
-    }
+        this.client.messages
+            .create(this.MAILGUN_DOMAIN, options)
+            .then((res) => {
+                console.log(res);
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    }*/
 }

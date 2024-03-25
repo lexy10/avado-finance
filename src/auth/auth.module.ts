@@ -7,7 +7,7 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {UserEntity} from "../users/entities/user.entity";
 import {ConfigModule} from "@nestjs/config";
 import {EmailService} from "../email/email.service";
-import {SendGridClient} from "../email/sendgrid-client";
+import {EmailModule} from "../email/email.module";
 
 @Module({
   imports: [
@@ -17,9 +17,10 @@ import {SendGridClient} from "../email/sendgrid-client";
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1d' },
     }),
-    TypeOrmModule.forFeature([UserEntity])
+    TypeOrmModule.forFeature([UserEntity]),
+      EmailModule
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersService, EmailService, SendGridClient],
+  providers: [AuthService, UsersService, EmailService],
 })
 export class AuthModule {}

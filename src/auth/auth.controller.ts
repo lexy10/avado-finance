@@ -2,8 +2,9 @@ import {Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode,
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
-import {raw, Request, Response} from "express";
+import {raw, Request, response, Response} from "express";
 import {EmailService} from "../email/email.service";
+import {UserEntity} from "../users/entities/user.entity";
 
 @Controller('auth')
 export class AuthController {
@@ -18,12 +19,14 @@ export class AuthController {
       response.status(HttpStatus.CREATED).send({
         status: true,
         message: "Registration Successful",
+        extras: "Verification code sent to email address",
         token: registeredUser,
       }, )
     } else {
       response.status(HttpStatus.CONFLICT).send({
         status: false,
         message: 'Account already exists',
+        data: registeredUser
       });
     }
   }
@@ -46,12 +49,23 @@ export class AuthController {
     //return response
   }
 
-  @Post('send-test-email')
+  /*@Post('send-test-email')
   async sendEmail(@Req() request: Request, @Res() response: Response): Promise<void> {
 
       try {
         const { recipient, body } = request.body;
-        await this.emailService.sendTestEmail(recipient, body);
+        const token = Math.floor(1000 + Math.random() * 9000).toString();
+        await this.emailService.sendUserConfirmation({
+          createdAt: undefined,
+          id: 0,
+          is_verified: false,
+          password: "",
+          phone_number: "",
+          transaction_pin: 0,
+          updatedAt: undefined,
+          username: "",
+          verification_code: "",
+          email_address: "kinglexy10@gmail.com", full_name: "Olakunle Irantiola"}, token);
         response.status(HttpStatus.OK).send({
           status: true,
           message: 'Email sent successfully',
@@ -64,11 +78,28 @@ export class AuthController {
           error: error.message,
         });
       }
-    }
+    }*/
 
-  @Get(':id')
-  forgotPassword(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  @Post('verify')
+  async verifyAccount(@Req() request: Request, @Res() response: Response) {
+    const verified = await this.authService.verifyAccount(request.body)
+    if (!verified.status) {
+      response.status(HttpStatus.OK).send({
+        status: false,
+        message: verified.message,
+      });
+    } else {
+      response.status(HttpStatus.OK).send({
+        status: true,
+        message: 'Verification Successful',
+      });
+    }
+  }
+
+  @Get('verify/:email/:code')
+  forgotPassword(@Param('email') email: string, @Param('code') code: string) {
+    //return this.authService.findOne(+id);
+    console.log("Email and Code: ", email + " - " + code)
   }
 
   @Patch(':id')

@@ -16,12 +16,23 @@ export class UsersService {
       const newUser = this.userRepository.create({
         full_name: requestParams.full_name,
         email_address: requestParams.email_address,
-        password: requestParams.password
+        password: requestParams.password,
+        verification_code: requestParams.verification_code
       })
 
       await this.userRepository.save(newUser)
 
       return newUser
+  }
+
+  async verifyUser(user: UserEntity) {
+    await this.userRepository.update(
+        { id: user.id },
+        {
+          is_verified: true
+        })
+
+    return true
   }
 
   findAll() {
@@ -31,6 +42,7 @@ export class UsersService {
   async findOne(email_address: string): Promise<UserEntity | undefined> {
     return this.userRepository.findOneBy({ email_address: email_address });
   }
+
 
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;

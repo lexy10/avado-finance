@@ -23,6 +23,9 @@ export class UserEntity {
     @Column({ type: "varchar", nullable: true })
     transaction_pin: number
 
+    @Column({ type: "varchar", nullable: true })
+    verification_code: string
+
     @Column({ type: 'boolean', default: false })
     is_verified: boolean
 
