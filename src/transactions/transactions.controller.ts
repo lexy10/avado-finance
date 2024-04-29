@@ -1,15 +1,34 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, HttpStatus} from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import {Request, Response} from "express";
 
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
-  @Post()
-  create(@Body() createTransactionDto: CreateTransactionDto) {
-    return this.transactionsService.create(createTransactionDto);
+  @Post('get-deposit-address')
+  async getDepositAddress(@Req() request: Request, @Res() response: Response) {
+    const address = await this.transactionsService.getDepositAddress(request.body);
+    if (address.status) {
+      response.status(HttpStatus.OK).send({
+        status: true,
+        message: 'Deposit Address Fetched',
+        address: address.wallet_address,
+        //address_network: "USDT TRC20"
+      });
+    } else {
+      response.status(HttpStatus.NOT_FOUND).send({
+        status: true,
+        message: 'Unable to fetch deposit address',
+      });
+    }
+  }
+
+  @Get('get-p2p')
+  async getP2p(@Req() request: Request, @Res() response: Response) {
+    const p2p = await this.transactionsService.getP2p()
   }
 
   @Get()

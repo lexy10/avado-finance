@@ -5,11 +5,14 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 import {raw, Request, response, Response} from "express";
 import {EmailService} from "../email/email.service";
 import {UserEntity} from "../users/entities/user.entity";
+import {UsersService} from "../users/users.service";
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService,
-              private readonly emailService: EmailService,
+  constructor(
+      private readonly authService: AuthService,
+      private readonly emailService: EmailService,
+      private readonly usersService: UsersService
   ) {}
 
   @Post("register")

@@ -1,4 +1,6 @@
 import {Injectable} from '@nestjs/common';
+import axios from 'axios';
+import qs from 'qs';
 import {UpdateAuthDto} from './dto/update-auth.dto';
 import * as bcrypt from "bcrypt";
 import {JwtService} from "@nestjs/jwt";
@@ -42,7 +44,6 @@ export class AuthService {
       return false
     }
   }
-
 
   async register(requestParams) {
     try {

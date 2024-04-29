@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import {MiddlewareConsumer, Module, NestModule} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -8,6 +8,11 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {ConfigModule} from "@nestjs/config";
 import {UserEntity} from "./users/entities/user.entity";
 import {EmailService} from "./email/email.service";
+import {AuthMiddleware} from "./auth.middleware";
+import { WalletModule } from './wallet/wallet.module';
+import {TransactionEntity} from "./transactions/entities/transaction.entity";
+import { P2pModule } from './p2p/p2p.module';
+import {P2pEntity} from "./p2p/entities/p2p.entity";
 
 @Module({
   imports: [
@@ -20,7 +25,7 @@ import {EmailService} from "./email/email.service";
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DATABASE,
-      entities: [UserEntity],
+      entities: [UserEntity, TransactionEntity],
       //entities: [__dirname + '/**/*.entity{.ts,.js}', __dirname + '/entities/*.entity{.ts,.js}'],
 
       //migrationsTableName: 'migration',
@@ -28,12 +33,21 @@ import {EmailService} from "./email/email.service";
       ssl: false,
       synchronize: true, // Set to true if you want TypeORM to synchronize the database schema automatically
     }),
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity, TransactionEntity, P2pEntity]),
     UsersModule,
     AuthModule,
     TransactionsModule,
+    WalletModule,
+    P2pModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    // Apply AuthMiddleware to the routes you want to protect
+    consumer
+        .apply(AuthMiddleware)
+        .forRoutes('/transactions/*');
+  }
+}

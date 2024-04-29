@@ -17,7 +17,8 @@ export class UsersService {
         full_name: requestParams.full_name,
         email_address: requestParams.email_address,
         password: requestParams.password,
-        verification_code: requestParams.verification_code
+        verification_code: requestParams.verification_code,
+        usdt_wallet_address: requestParams.usdt_wallet_address
       })
 
       await this.userRepository.save(newUser)
@@ -35,12 +36,17 @@ export class UsersService {
     return true
   }
 
+
   findAll() {
     return `This action returns all users`;
   }
 
   async findOne(email_address: string): Promise<UserEntity | undefined> {
-    return this.userRepository.findOneBy({ email_address: email_address });
+    return await this.userRepository.findOneBy({ email_address: email_address });
+  }
+
+  async updateWalletAddress(user: UserEntity) {
+    return await this.userRepository.save(user);
   }
 
 

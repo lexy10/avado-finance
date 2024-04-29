@@ -1,0 +1,38 @@
+// auth.middleware.ts
+import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+import {JwtService} from "@nestjs/jwt";
+
+@Injectable()
+export class AuthMiddleware implements NestMiddleware {
+    constructor(private readonly jwtService: JwtService) {}
+    async use(req: Request, res: Response, next: NextFunction) {
+        // Check if Authorization header is present
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            throw new UnauthorizedException('Authorization header missing');
+        }
+
+        // Check if token is valid (for example, you might use JWT validation here)
+        const [, token] = authHeader.split(' '); // Assuming format is Bearer <token>
+
+        try {
+            // Decode the token to extract payload
+            const decodedToken = await this.jwtService.verifyAsync(token);
+
+            // Check if the decoded token contains the email address
+            if (!decodedToken || !decodedToken.sub) {
+                throw new UnauthorizedException('Invalid token');
+            }
+
+            // Attach the email address to the request object for future use
+            req.body.email_address = decodedToken.sub;
+
+            // If token is valid, proceed to the next middleware or route handler
+            next();
+
+        } catch (error) {
+            throw new UnauthorizedException('Invalid token');
+        }
+    }
+}
