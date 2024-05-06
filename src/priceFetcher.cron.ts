@@ -14,7 +14,7 @@ export class PriceFetcherCron {
     try {
       //console.log('Coin Price Getter Cron Executed!');
       // Add your logic here
-      await this.currenciesService.fetchCurrencyPriceRate()
+      //await this.currenciesService.fetchCurrencyPriceRate()
     } catch (err) {
       console.log(err)
     }
