@@ -8,7 +8,7 @@ export class AuthMiddleware implements NestMiddleware {
     constructor(private readonly jwtService: JwtService) {}
     async use(req: Request, res: Response, next: NextFunction) {
         // Check if Authorization header is present
-        console.log("path", req.baseUrl)
+        //console.log("path", req.baseUrl)
 
         if (req.baseUrl === '/transactions/verify-payment') {
             // If it is, skip authentication and proceed to the next middleware
