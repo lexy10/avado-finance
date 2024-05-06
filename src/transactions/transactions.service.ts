@@ -11,17 +11,20 @@ import {SettingsService} from "../settings/settings.service";
 import {Exception} from "handlebars";
 import {CustomException} from "../exceptions/CustomException";
 import {generateIdWithTime, generateTransactionHash} from "../utils";
+import {UserEntity} from "../users/entities/user.entity";
+import {CurrenciesService} from "../currencies/currencies.service";
 
 @Injectable()
 export class TransactionsService {
   constructor(
       private userService: UsersService,
       private settingsService: SettingsService,
+      private currenciesService: CurrenciesService,
       @InjectRepository(TransactionEntity) private transactionRepository: Repository<TransactionEntity>
   ) {}
 
   async getDepositAddress(requestParams: any) {
-    const user = await this.userService.findOne(requestParams.user.email_address)
+    const user = await this.userService.findOneByEmail(requestParams.user.email_address)
     if (!user[requestParams.coin+'_wallet_address']) {
       const walletAddressResult = await this.generateDepositAddress(requestParams.coin, requestParams.user.email_address)
       if (walletAddressResult.error != "ok")
@@ -108,7 +111,7 @@ export class TransactionsService {
       throw new CustomException('HMAC signature does not match' )
     }
 
-    const userAccount = this.userService.findOne(requestBody.email_address)
+    const userAccount = this.userService.findOneByEmail(requestBody.email_address)
 
     if (!userAccount)
       throw new CustomException("User with email address not found")
@@ -182,14 +185,19 @@ export class TransactionsService {
     return this.transactionRepository.save(transaction);
   }
 
+  async giveDepositBonus(user: UserEntity) {
+    const referrer = user.referrer
+    console.log(referrer)
+  }
+
   async swapCoin(request: any) {
-    const user = await this.userService.findOne(request.user.email_address)
+    const user = await this.userService.findOneByEmail(request.user.email_address)
     const swapFromCoin = request.swap_from
     const swapToCoin = request.swap_to
     const swapNetwork = request.swap_network
     const swapFromValue = request.swap_from_value
 
-    const coins = await this.settingsService.fetchCoins()
+    const coins = await this.currenciesService.fetchCurrencies()
     const fromCoinEntity = coins.find(entity => entity.coin_name === swapFromCoin);
     const toCoinEntity = coins.find(entity => entity.coin_name === swapToCoin);
 

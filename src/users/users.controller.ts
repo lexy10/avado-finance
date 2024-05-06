@@ -20,7 +20,7 @@ export class UsersController {
 
   @Get(':email_address')
   findOne(@Param('email_address') email_address: string) {
-    return this.usersService.findOne(email_address);
+    return this.usersService.findOneByEmail(email_address);
   }
 
   @Patch(':id')

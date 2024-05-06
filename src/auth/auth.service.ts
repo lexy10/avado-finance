@@ -25,7 +25,7 @@ export class AuthService {
   }
 
   async login(requestBody): Promise<any> {
-    const user = await this.usersService.findOne(requestBody.email_address);
+    const user = await this.usersService.findOneByEmail(requestBody.email_address);
 
     if (!user)
       throw new UnauthorizedException("Invalid login details")
@@ -52,7 +52,7 @@ export class AuthService {
   }
 
   async register(requestParams) {
-      const isUserExisting = await this.usersService.findOne(requestParams.email_address)
+      const isUserExisting = await this.usersService.findOneByEmail(requestParams.email_address)
       if (isUserExisting)
         throw new CustomException("User account already exists")
 
@@ -95,7 +95,7 @@ export class AuthService {
   }
 
   async verifyAccount(requestParams) {
-    const isUserExisting = await this.usersService.findOne(requestParams.user.email_address)
+    const isUserExisting = await this.usersService.findOneByEmail(requestParams.user.email_address)
 
     if (!isUserExisting)
       throw new NotFoundException("Invalid user account")

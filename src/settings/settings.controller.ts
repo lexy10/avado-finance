@@ -15,12 +15,6 @@ export class SettingsController {
 
   @Get()
   async findAll(@Req() request: Request, @Res() response: Response) {
-    //return this.settingsService.findAll();
-    /*await this.settingsService.seed();
-    response.status(HttpStatus.OK).send({
-      status: true,
-      message: 'Seeded',
-    });*/
   }
 
   @Get(':id')

@@ -48,8 +48,12 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  async findOne(email_address: string): Promise<UserEntity | undefined> {
+  async findOneByEmail(email_address: string): Promise<UserEntity | undefined> {
     return await this.userRepository.findOneBy({ email_address: email_address });
+  }
+
+  async findOneById(id: any): Promise<UserEntity | undefined> {
+    return await this.userRepository.findOneBy({ id: id } );
   }
 
   async updateUser(user: UserEntity) {

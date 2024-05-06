@@ -20,6 +20,9 @@ import { SettingsModule } from './settings/settings.module';
 import {SettingsEntity} from "./settings/entities/setting.entity";
 import {WalletEntity} from "./wallet/entities/wallet.entity";
 import {SettingsService} from "./settings/settings.service";
+import { CurrenciesModule } from './currencies/currencies.module';
+import {CurrenciesService} from "./currencies/currencies.service";
+import {CurrencyEntity} from "./currencies/entities/currency.entity";
 
 @Module({
   imports: [
@@ -32,7 +35,7 @@ import {SettingsService} from "./settings/settings.service";
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DATABASE,
-      entities: [UserEntity, TransactionEntity, SettingsEntity, WalletEntity],
+      entities: [UserEntity, TransactionEntity, SettingsEntity, WalletEntity, CurrencyEntity],
       //entities: [__dirname + '/**/*.entity{.ts,.js}', __dirname + '/entities/*.entity{.ts,.js}'],
 
       //migrationsTableName: 'migration',
@@ -40,7 +43,7 @@ import {SettingsService} from "./settings/settings.service";
       ssl: false,
       synchronize: true, // Set to true if you want TypeORM to synchronize the database schema automatically
     }),
-    TypeOrmModule.forFeature([UserEntity, TransactionEntity, P2pEntity, SettingsEntity]),
+    TypeOrmModule.forFeature([UserEntity, TransactionEntity, P2pEntity, SettingsEntity, CurrencyEntity]),
     ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
@@ -49,9 +52,10 @@ import {SettingsService} from "./settings/settings.service";
     P2pModule,
     DashboardModule,
     SettingsModule,
+    CurrenciesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, EmailService, SettingsService, PriceFetcherCron],
+  providers: [AppService, EmailService, SettingsService, CurrenciesService, PriceFetcherCron],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

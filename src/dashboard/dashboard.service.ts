@@ -10,6 +10,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {SettingsEntity} from "../settings/entities/setting.entity";
 import {SettingsService} from "../settings/settings.service";
 import {Exception} from "handlebars";
+import {CurrenciesService} from "../currencies/currencies.service";
 
 @Injectable()
 export class DashboardService {
@@ -17,6 +18,7 @@ export class DashboardService {
   constructor(
       private userService: UsersService,
       private settingsService: SettingsService,
+      private currenciesService: CurrenciesService,
       @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
       @InjectRepository(SettingsEntity) private settingsRepository: Repository<SettingsEntity>
   ) {}
@@ -27,7 +29,7 @@ export class DashboardService {
 
   async formatBalance(user: UserEntity) {
     let overallBalance: number = 0
-    const coins = await this.settingsService.fetchCoins()
+    const coins = await this.currenciesService.fetchCurrencies()
 
     coins.forEach(entity => {
       overallBalance += user[entity.coin_name+'_balance'] * entity.coin_rate; // Accumulate coin_rate

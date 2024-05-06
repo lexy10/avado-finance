@@ -7,13 +7,15 @@ import {UserEntity} from "../users/entities/user.entity";
 import {UsersService} from "../users/users.service";
 import {SettingsEntity} from "../settings/entities/setting.entity";
 import {SettingsService} from "../settings/settings.service";
+import {CurrenciesService} from "../currencies/currencies.service";
+import {CurrencyEntity} from "../currencies/entities/currency.entity";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([UserEntity, SettingsEntity]),
+    TypeOrmModule.forFeature([UserEntity, SettingsEntity, CurrencyEntity]),
   ],
   controllers: [DashboardController],
-  providers: [DashboardService, UsersService, SettingsService],
+  providers: [DashboardService, UsersService, SettingsService, CurrenciesService],
 })
 export class DashboardModule {}

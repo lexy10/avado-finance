@@ -10,13 +10,15 @@ import {EmailModule} from "../email/email.module";
 import {TransactionEntity} from "./entities/transaction.entity";
 import {SettingsService} from "../settings/settings.service";
 import {SettingsEntity} from "../settings/entities/setting.entity";
+import {CurrenciesService} from "../currencies/currencies.service";
+import {CurrencyEntity} from "../currencies/entities/currency.entity";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([UserEntity, TransactionEntity, SettingsEntity]),
+    TypeOrmModule.forFeature([UserEntity, TransactionEntity, SettingsEntity, CurrencyEntity]),
   ],
   controllers: [TransactionsController],
-  providers: [TransactionsService, UsersService, SettingsService],
+  providers: [TransactionsService, UsersService, SettingsService, CurrenciesService],
 })
 export class TransactionsModule {}
