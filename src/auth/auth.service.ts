@@ -64,7 +64,7 @@ export class AuthService {
 
       //get referrer
       const referrerUser = await this.usersService.getReferrer(requestParams.referrer_code)
-      if (referrerUser && requestParams.referrer)
+      if (requestParams.referrer_code && referrerUser)
         requestParams.referrer = referrerUser
     else
       requestParams.referrer = null
