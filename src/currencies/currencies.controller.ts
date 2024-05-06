@@ -16,11 +16,11 @@ export class CurrenciesController {
   @Get()
   async findAll(@Req() request: Request, @Res() response: Response) {
     //return this.settingsService.findAll();
-    await this.currenciesService.seedCurrencies();
+    /*await this.currenciesService.seedCurrencies();
     response.status(HttpStatus.OK).send({
       status: true,
       message: 'Seeded',
-    });
+    });*/
   }
 
   @Get(':id')
