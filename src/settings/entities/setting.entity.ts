@@ -1,21 +1,18 @@
 import {Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
 
-@Entity({ name: 'wallets' })
-export class WalletEntity {
+@Entity({ name: 'settings' })
+export class SettingsEntity {
     @PrimaryGeneratedColumn({ type: "bigint" })
     id: number
 
-    @Column({ type: 'bigint' })
-    user_id: number
+    @Column({ type: 'varchar' })
+    coin_name: string
 
     @Column({ type: 'varchar' })
-    wallet_address: string
+    coin_fullname: string
 
-    @Column({ type: 'varchar' })
-    wallet_type: string
-
-    @Column({ type: 'varchar' })
-    wallet_network: string
+    @Column({ type: 'float' })
+    coin_rate: number
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;

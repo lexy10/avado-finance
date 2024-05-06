@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {Injectable} from '@nestjs/common';
+import {UpdateUserDto} from './dto/update-user.dto';
 import {InjectRepository} from "@nestjs/typeorm";
 import {UserEntity} from "./entities/user.entity";
 import {Repository} from "typeorm";
@@ -18,7 +17,8 @@ export class UsersService {
         email_address: requestParams.email_address,
         password: requestParams.password,
         verification_code: requestParams.verification_code,
-        usdt_wallet_address: requestParams.usdt_wallet_address
+        referral_code: requestParams.referral_code,
+        referrer: requestParams.referrer
       })
 
       await this.userRepository.save(newUser)
@@ -27,15 +27,22 @@ export class UsersService {
   }
 
   async verifyUser(user: UserEntity) {
-    await this.userRepository.update(
+    return await this.userRepository.update(
         { id: user.id },
         {
           is_verified: true
         })
-
-    return true
   }
 
+  async getUserWallets(email: string): Promise<UserEntity> {
+    const entity = await this.userRepository.find({where: { email_address: email }});
+
+    return entity[0]; // Assuming you only expect one entity
+  }
+
+  async getReferrer(referralCode: string): Promise<UserEntity> {
+    return await this.userRepository.findOneBy({ referral_code: referralCode })
+  }
 
   findAll() {
     return `This action returns all users`;
@@ -45,7 +52,7 @@ export class UsersService {
     return await this.userRepository.findOneBy({ email_address: email_address });
   }
 
-  async updateWalletAddress(user: UserEntity) {
+  async updateUser(user: UserEntity) {
     return await this.userRepository.save(user);
   }
 

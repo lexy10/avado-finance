@@ -8,6 +8,12 @@ export class AuthMiddleware implements NestMiddleware {
     constructor(private readonly jwtService: JwtService) {}
     async use(req: Request, res: Response, next: NextFunction) {
         // Check if Authorization header is present
+        console.log("path", req.baseUrl)
+
+        if (req.baseUrl === '/transactions/verify-payment') {
+            // If it is, skip authentication and proceed to the next middleware
+            return next();
+        }
         const authHeader = req.headers.authorization;
         if (!authHeader) {
             throw new UnauthorizedException('Authorization header missing');
@@ -26,7 +32,9 @@ export class AuthMiddleware implements NestMiddleware {
             }
 
             // Attach the email address to the request object for future use
-            req.body.email_address = decodedToken.sub;
+            req.body.user = {...decodedToken};
+
+            //console.log(req.body)
 
             // If token is valid, proceed to the next middleware or route handler
             next();

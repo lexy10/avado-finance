@@ -15,7 +15,7 @@ import {EmailModule} from "../email/email.module";
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1d' },
+      signOptions: { expiresIn: '10d' },
     }),
     TypeOrmModule.forFeature([UserEntity]),
       EmailModule

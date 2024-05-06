@@ -1,14 +1,18 @@
-import {Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
+import {Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
+import {UserEntity} from "../../users/entities/user.entity";
 
 @Entity({ name: 'transactions' })
 export class TransactionEntity {
     @PrimaryGeneratedColumn({ type: "bigint" })
     id: number
 
-    @Column({ type: "float", default: 0 })
+    @Column({ type: "float", nullable: true })
     amount: number
 
-    @Column({ type: "enum", enum: ['deposit', 'withdrawal', 'swap'] })
+    @Column({ type: "float", nullable: true})
+    amount_in_usd: number
+
+    @Column({ type: "enum", enum: ['deposit', 'withdrawal', 'swap', 'transfer'] })
     type: string
 
     @Column({type: "varchar", nullable: true})
@@ -35,10 +39,31 @@ export class TransactionEntity {
     @Column({ type: "varchar", nullable: true})
     transaction_hash: string
 
+    @Column({ type: "varchar", nullable: true})
+    deposit_id: string
+
+    @Column({ type: "varchar", nullable: true})
+    transaction_id: string
+
+    @Column({ type: "varchar", nullable: true})
+    transaction_confirmations: string
+
+    @Column({ type: "float", nullable: true})
+    transaction_fee: number
+
+    @Column({ type: "float", nullable: true})
+    transaction_fee_in_usd: number
+
+    @Column({ type: "text", nullable: true})
+    post_data: string
+
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
 
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
+
+    @ManyToOne(() => UserEntity, user => user.transactions)
+    user: UserEntity;
 
 }

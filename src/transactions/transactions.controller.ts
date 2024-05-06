@@ -10,18 +10,17 @@ export class TransactionsController {
 
   @Post('get-deposit-address')
   async getDepositAddress(@Req() request: Request, @Res() response: Response) {
-    const address = await this.transactionsService.getDepositAddress(request.body);
-    if (address.status) {
-      response.status(HttpStatus.OK).send({
+    try {
+      const address = await this.transactionsService.getDepositAddress(request.body);
+      response.status(HttpStatus.OK).json({
         status: true,
         message: 'Deposit Address Fetched',
-        address: address.wallet_address,
-        //address_network: "USDT TRC20"
+        ...address,
       });
-    } else {
-      response.status(HttpStatus.NOT_FOUND).send({
-        status: true,
-        message: 'Unable to fetch deposit address',
+    } catch (error) {
+      response.status(HttpStatus.NOT_FOUND).json({
+        status: false,
+        message: error.me,
       });
     }
   }
@@ -32,8 +31,50 @@ export class TransactionsController {
   }
 
   @Get()
-  findAll() {
-    return this.transactionsService.findAll();
+  async findAll(@Req() request: Request, @Res() response: Response) {
+    try {
+      const transactions = await this.transactionsService.findAll();
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Transactions fetched successfully',
+        transactions
+      })
+    } catch (error) {
+      response.json({
+        status: false,
+        message: error.message,
+      })
+    }
+  }
+
+  @Post('verify-payment')
+  async verifyPayment(@Req() request: Request, @Res() response: Response) {
+    try {
+      const verified = await this.transactionsService.verifyPayment(request);
+      return  response.status(HttpStatus.OK).send('IPN OK')
+    } catch (error) {
+      response.status(HttpStatus.BAD_REQUEST).json({
+        status: false,
+        message: error.message
+      })
+    }
+  }
+
+  @Post('swap-coin')
+  async swapCoin(@Req() request: Request, @Res() response: Response) {
+    try {
+      const swap = await this.transactionsService.swapCoin(request.body)
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: "Swap Successful",
+        wallet: swap
+      })
+    } catch (error) {
+      response.status(HttpStatus.BAD_REQUEST).json({
+        status: false,
+        message: error.message,
+      })
+    }
   }
 
   @Get(':id')

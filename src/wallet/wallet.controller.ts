@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Req, Res} from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { UpdateWalletDto } from './dto/update-wallet.dto';
+import {raw, Request, Response} from "express";
 
-@Controller('wallet')
+@Controller('wallets')
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
 
@@ -13,8 +14,21 @@ export class WalletController {
   }
 
   @Get()
-  findAll() {
-    return this.walletService.findAll();
+  async findAll(@Req() request: Request, @Res() response: Response) {
+    const wallets = await this.walletService.findAll(request.body);
+    if (wallets.status) {
+      response.status(HttpStatus.OK).send({
+        status: true,
+        message: 'Wallets Fetched',
+        wallets: wallets.wallets,
+        //address_network: "USDT TRC20"
+      });
+    } else {
+      response.status(HttpStatus.NOT_FOUND).send({
+        status: true,
+        message: 'Unable to fetch deposit address',
+      });
+    }
   }
 
   @Get(':id')

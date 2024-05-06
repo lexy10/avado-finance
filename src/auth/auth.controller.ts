@@ -17,36 +17,35 @@ export class AuthController {
 
   @Post("register")
   async register(@Req() request: Request, @Res() response: Response) {
-    const registeredUser = await this.authService.register(request.body);
-    if (registeredUser) {
-      response.status(HttpStatus.CREATED).send({
+    try {
+      const registeredUser = await this.authService.register(request.body);
+      response.status(HttpStatus.OK).json({
         status: true,
         message: "Registration Successful",
         extras: "Verification code sent to email address",
         token: registeredUser,
       }, )
-    } else {
-      response.status(HttpStatus.CONFLICT).send({
+    } catch (error) {
+      response.status(HttpStatus.CONFLICT).json({
         status: false,
-        message: 'Account already exists',
-        data: registeredUser
+        message: error.message,
       });
     }
   }
 
   @Post("login")
   async login(@Req() request: Request, @Res() response: Response) {
-    const loggedUser = await this.authService.login(request.body);
-    if (loggedUser) {
-      response.status(HttpStatus.OK).send({
+    try {
+      const loggedUser = await this.authService.login(request.body);
+      response.status(HttpStatus.OK).json({
         status: true,
         message: 'Authentication Successful',
-        token: loggedUser,
+        ...loggedUser,
       });
-    } else {
-      response.status(HttpStatus.UNAUTHORIZED).send({
+    } catch (error) {
+      response.status(HttpStatus.UNAUTHORIZED).json({
         status: false,
-        message: 'Invalid login details',
+        message: error.message,
       });
     }
     //return response
@@ -85,16 +84,16 @@ export class AuthController {
 
   @Post('verify')
   async verifyAccount(@Req() request: Request, @Res() response: Response) {
-    const verified = await this.authService.verifyAccount(request.body)
-    if (!verified.status) {
-      response.status(HttpStatus.OK).send({
+    try {
+      const verified = await this.authService.verifyAccount(request.body)
+      response.status(HttpStatus.OK).json({
         status: false,
-        message: verified.message,
+        message: "Verification Successful",
       });
-    } else {
-      response.status(HttpStatus.OK).send({
+    } catch (error) {
+      response.json({
         status: true,
-        message: 'Verification Successful',
+        message: error.message,
       });
     }
   }

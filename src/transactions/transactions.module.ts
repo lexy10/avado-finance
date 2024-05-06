@@ -7,13 +7,16 @@ import {JwtModule} from "@nestjs/jwt";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {UserEntity} from "../users/entities/user.entity";
 import {EmailModule} from "../email/email.module";
+import {TransactionEntity} from "./entities/transaction.entity";
+import {SettingsService} from "../settings/settings.service";
+import {SettingsEntity} from "../settings/entities/setting.entity";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity, TransactionEntity, SettingsEntity]),
   ],
   controllers: [TransactionsController],
-  providers: [TransactionsService, UsersService],
+  providers: [TransactionsService, UsersService, SettingsService],
 })
 export class TransactionsModule {}

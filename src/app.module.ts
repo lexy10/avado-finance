@@ -1,4 +1,4 @@
-import {MiddlewareConsumer, Module, NestModule} from '@nestjs/common';
+import {MiddlewareConsumer, Module, NestModule, RequestMethod} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -13,6 +13,13 @@ import { WalletModule } from './wallet/wallet.module';
 import {TransactionEntity} from "./transactions/entities/transaction.entity";
 import { P2pModule } from './p2p/p2p.module';
 import {P2pEntity} from "./p2p/entities/p2p.entity";
+import { DashboardModule } from './dashboard/dashboard.module';
+import {PriceFetcherCron} from "./priceFetcher.cron";
+import {ScheduleModule} from "@nestjs/schedule";
+import { SettingsModule } from './settings/settings.module';
+import {SettingsEntity} from "./settings/entities/setting.entity";
+import {WalletEntity} from "./wallet/entities/wallet.entity";
+import {SettingsService} from "./settings/settings.service";
 
 @Module({
   imports: [
@@ -25,7 +32,7 @@ import {P2pEntity} from "./p2p/entities/p2p.entity";
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DATABASE,
-      entities: [UserEntity, TransactionEntity],
+      entities: [UserEntity, TransactionEntity, SettingsEntity, WalletEntity],
       //entities: [__dirname + '/**/*.entity{.ts,.js}', __dirname + '/entities/*.entity{.ts,.js}'],
 
       //migrationsTableName: 'migration',
@@ -33,21 +40,24 @@ import {P2pEntity} from "./p2p/entities/p2p.entity";
       ssl: false,
       synchronize: true, // Set to true if you want TypeORM to synchronize the database schema automatically
     }),
-    TypeOrmModule.forFeature([UserEntity, TransactionEntity, P2pEntity]),
+    TypeOrmModule.forFeature([UserEntity, TransactionEntity, P2pEntity, SettingsEntity]),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     TransactionsModule,
     WalletModule,
     P2pModule,
+    DashboardModule,
+    SettingsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, EmailService],
+  providers: [AppService, EmailService, SettingsService, PriceFetcherCron],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // Apply AuthMiddleware to the routes you want to protect
     consumer
         .apply(AuthMiddleware)
-        .forRoutes('/transactions/*');
+        .forRoutes('/transactions*', '/users*', '/wallets*', '/p2p*', '/dashboard*', '/auth/verify');
   }
 }
