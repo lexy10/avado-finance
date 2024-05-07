@@ -47,6 +47,23 @@ export class TransactionsController {
     }
   }
 
+  @Get(':currency')
+  async findAllByCurrency(@Param('currency') currency: string, @Res() response: Response) {
+    try {
+      const transactions = await this.transactionsService.findAllByCurrency(currency);
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Transactions fetched successfully',
+        transactions
+      })
+    } catch (error) {
+      response.json({
+        status: false,
+        message: error.message,
+      })
+    }
+  }
+
   @Post('verify-payment')
   async verifyPayment(@Req() request: Request, @Res() response: Response) {
     try {
@@ -77,9 +94,21 @@ export class TransactionsController {
     }
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.transactionsService.findOne(+id);
+  @Get('get-swappable-currencies')
+  async fetchSwappableCurrencies(@Req() request: Request, @Res() response: Response) {
+    try {
+      const currencies = await this.transactionsService.fetchSwappableCurrencies()
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Currencies Fetched',
+        currencies: currencies
+      })
+    } catch (error) {
+      response.status(HttpStatus.BAD_REQUEST).json({
+        status: false,
+        message: error.message
+      })
+    }
   }
 
   @Patch(':id')

@@ -89,6 +89,16 @@ export class CurrenciesService {
     }))
   }
 
+  async fetchCurrenciesName(): Promise<any[]> {
+    const entities = await this.currenciesRepository.find({
+      select: ["coin_name", "coin_fullname"]
+    });
+    return entities.map(entity => ({
+      coin_name: entity.coin_name,
+      coin_fullname: entity.coin_fullname,
+    }))
+  }
+
   async seedCurrencies() {
     const coins = [
       { coin_name: 'usdt', coin_fullname: 'Tether(USDT)', coin_rate: 0 },

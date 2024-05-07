@@ -82,6 +82,10 @@ export class TransactionsService {
     return await this.transactionRepository.find({ relations: ['user'] });
   }
 
+  async findAllByCurrency(currency: string) {
+    return await this.transactionRepository.find({ where: { currency: currency }, relations: ['user'] });
+  }
+
   async verifyPayment(request: any) {
     const cp_merchant_id = 'bc3bd01e0692865f07db85a03f3fe47f'; // Fill in with your CoinPayments merchant ID
     const cp_ipn_secret = 'avadofinsec'; // Fill in with your CoinPayments IPN secret
@@ -252,6 +256,10 @@ export class TransactionsService {
 
     return userValue.wallets()
 
+  }
+
+  async fetchSwappableCurrencies() {
+    return await this.currenciesService.fetchCurrenciesName()
   }
 
   findOne(id: number) {
