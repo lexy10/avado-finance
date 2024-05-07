@@ -94,23 +94,6 @@ export class TransactionsController {
     }
   }
 
-  @Get('get-swappable-currencies')
-  async fetchSwappableCurrencies(@Req() request: Request, @Res() response: Response) {
-    try {
-      const currencies = await this.transactionsService.fetchSwappableCurrencies()
-      response.status(HttpStatus.OK).json({
-        status: true,
-        message: 'Currencies Fetched',
-        currencies: currencies
-      })
-    } catch (error) {
-      response.status(HttpStatus.BAD_REQUEST).json({
-        status: false,
-        message: error.message
-      })
-    }
-  }
-
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateTransactionDto: UpdateTransactionDto) {
     return this.transactionsService.update(+id, updateTransactionDto);

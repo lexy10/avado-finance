@@ -3,14 +3,35 @@ import { WalletService } from './wallet.service';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { UpdateWalletDto } from './dto/update-wallet.dto';
 import {raw, Request, Response} from "express";
+import {TransactionsService} from "../transactions/transactions.service";
 
 @Controller('wallets')
 export class WalletController {
-  constructor(private readonly walletService: WalletService) {}
+  constructor(
+      private readonly walletService: WalletService,
+      private readonly transactionsService: TransactionsService
+  ) {}
 
   @Post()
   create(@Body() createWalletDto: CreateWalletDto) {
     return this.walletService.create(createWalletDto);
+  }
+
+  @Get('get-swappable-currencies')
+  async fetchSwappableCurrencies(@Req() request: Request, @Res() response: Response) {
+    try {
+      const currencies = await this.transactionsService.fetchSwappableCurrencies()
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Currencies Fetched',
+        currencies: currencies
+      })
+    } catch (error) {
+      response.status(HttpStatus.BAD_REQUEST).json({
+        status: false,
+        message: error.message
+      })
+    }
   }
 
   @Get()
