@@ -9,12 +9,23 @@ import {TransactionsService} from "../transactions/transactions.service";
 export class WalletController {
   constructor(
       private readonly walletService: WalletService,
-      private readonly transactionsService: TransactionsService
   ) {}
 
-  @Post()
-  create(@Body() createWalletDto: CreateWalletDto) {
-    return this.walletService.create(createWalletDto);
+  @Post('get-deposit-address')
+  async getDepositAddress(@Req() request: Request, @Res() response: Response) {
+    try {
+      const address = await this.walletService.getDepositAddress(request.body);
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Deposit Address Fetched',
+        wallet_address: address,
+      });
+    } catch (error) {
+      response.status(HttpStatus.NOT_FOUND).json({
+        status: false,
+        message: error.me,
+      });
+    }
   }
 
   @Get('get-swappable-currencies')

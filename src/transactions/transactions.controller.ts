@@ -8,23 +8,6 @@ import {Request, Response} from "express";
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
-  @Post('get-deposit-address')
-  async getDepositAddress(@Req() request: Request, @Res() response: Response) {
-    try {
-      const address = await this.transactionsService.getDepositAddress(request.body);
-      response.status(HttpStatus.OK).json({
-        status: true,
-        message: 'Deposit Address Fetched',
-        ...address,
-      });
-    } catch (error) {
-      response.status(HttpStatus.NOT_FOUND).json({
-        status: false,
-        message: error.me,
-      });
-    }
-  }
-
   @Get('get-p2p')
   async getP2p(@Req() request: Request, @Res() response: Response) {
     const p2p = await this.transactionsService.getP2p()

@@ -22,57 +22,6 @@ export class TransactionsService {
       @InjectRepository(TransactionEntity) private transactionRepository: Repository<TransactionEntity>
   ) {}
 
-  async getDepositAddress(requestParams: any) {
-    const user = await this.userService.findOneByEmail(requestParams.user.email_address)
-    if (!user[requestParams.coin+'_wallet_address']) {
-      const walletAddressResult = await this.generateDepositAddress(requestParams.coin, requestParams.user.email_address)
-      if (walletAddressResult.error != "ok")
-        throw new CustomException("Unable to fetch deposit address")
-
-      user[requestParams.coin+'_wallet_address'] = walletAddressResult.result.address
-      await this.userService.updateUser(user)
-      return walletAddressResult.result.address
-    } else {
-      return { status: true, wallet_address: user[requestParams.coin+'_wallet_address'] }
-    }
-  }
-
-  async generateDepositAddress(coin, user): Promise<any> {
-    const url = 'https://www.coinpayments.net/api.php';
-    const data = qs.stringify({
-      'currency': coin,
-      'version': '1',
-      'cmd': 'get_callback_address',
-      'key': '01ffb4dbd85a47aeb360bef363d568aa1ccc3a1bcd0a58fb71069f452ee705d5',
-      'email': user.email_address,
-      'format': 'json'
-    });
-    console.log(coin)
-    const hmacString = this.createHmac(data)
-    const config = {
-      maxBodyLength: Infinity,
-      headers: {
-        'HMAC': hmacString,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    };
-    try {
-      const response = await axios.post(url, data, config);
-      console.log(response.data);
-      return response.data
-    } catch (error) {
-      // Handle error
-      console.error('Error:', error.response.data);
-      throw error;
-    }
-  }
-
-  createHmac(data: string): string {
-    const hmac = crypto.createHmac('sha512', '19E2e60291fCeC1F3DA0f23Ce03031c738f88e1502e88b7f4475Cb82Cc6a6859');
-    hmac.update(data);
-    return hmac.digest('hex');
-  }
-
   async getP2p() {
 
   }

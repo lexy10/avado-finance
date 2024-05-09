@@ -1,4 +1,4 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, HttpStatus} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, HttpStatus, Put} from '@nestjs/common';
 import { SettingsService } from './settings.service';
 import { CreateSettingDto } from './dto/create-setting.dto';
 import { UpdateSettingDto } from './dto/update-setting.dto';
@@ -12,6 +12,38 @@ export class SettingsController {
   create(@Body() createSettingDto: CreateSettingDto) {
     return this.settingsService.create(createSettingDto);
   }
+
+  @Get()
+  async getProfile(@Req() request: Request, @Res() response: Response) {
+
+  }
+
+  @Patch()
+  async updateProfile(@Req() request: Request, @Res() response: Response) {
+
+  }
+
+  @Put()
+  async changePassword(@Req() request: Request, @Res() response: Response) {
+
+  }
+
+  @Get()
+  async getBankAccounts(@Req() request: Request, @Res() response: Response) {
+
+  }
+
+  @Post()
+  async addBankAccount(@Req() request: Request, @Res() response: Response) {
+
+  }
+
+  @Delete()
+  async removeBankAccount(@Req() request: Request, @Res() response: Response) {
+
+  }
+
+
 
   @Get()
   async findAll(@Req() request: Request, @Res() response: Response) {
