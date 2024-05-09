@@ -104,6 +104,15 @@ export class WalletService {
     const fromCoinEntity = coins.find(entity => entity.coin_name === swapFromCoin);
     const toCoinEntity = coins.find(entity => entity.coin_name === swapToCoin);
 
+    if (!swapFromCoin)
+      throw new CustomException("No currency selected to swap from")
+
+    if (!swapToCoin)
+      throw new CustomException("No currency selected to swap to")
+
+    if (!swapFromValue)
+      throw new CustomException("No value to swap")
+
     if (!fromCoinEntity)
       throw new CustomException(swapFromCoin + " not supported")
 
@@ -137,6 +146,15 @@ export class WalletService {
     const coins = await this.currenciesService.fetchCurrencies()
     const fromCoinEntity = coins.find(entity => entity.coin_name === swapFromCoin);
     const toCoinEntity = coins.find(entity => entity.coin_name === swapToCoin);
+
+    if (!swapFromCoin)
+      throw new CustomException("No currency selected to swap from")
+
+    if (!swapToCoin)
+      throw new CustomException("No currency selected to swap to")
+
+    if (!swapFromValue)
+      throw new CustomException("No value to swap")
 
     if (!fromCoinEntity)
       throw new CustomException(swapFromCoin + " not supported")
