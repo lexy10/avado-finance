@@ -112,7 +112,7 @@ export class UserEntity {
     wallets(): { ngn: any, usdt: any, usdc: any, btc: any, eth: any, bnb: any, solana: any, matic: any } {
         return {
             ngn: {
-                "balance": 2800
+                "balance": this.ngn_balance
             },
             usdt: {
                 "address": this.usdt_wallet_address,
