@@ -25,7 +25,7 @@ export class AuthService {
   }
 
   async login(requestBody): Promise<any> {
-    const user = await this.usersService.findOneByEmail(requestBody.email_address);
+    let user = await this.usersService.findOneByEmail(requestBody.email_address);
 
     if (!user)
       throw new UnauthorizedException("Invalid login details")
@@ -106,7 +106,7 @@ export class AuthService {
     if (requestParams.code != isUserExisting.verification_code)
       throw new CustomException("Invalid verification code")
 
-      return await this.usersService.verifyUser(isUserExisting)
+    return await this.usersService.verifyUser(isUserExisting)
   }
 
   findAll() {

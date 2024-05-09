@@ -3,6 +3,7 @@ import {UpdateUserDto} from './dto/update-user.dto';
 import {InjectRepository} from "@nestjs/typeorm";
 import {UserEntity} from "./entities/user.entity";
 import {Repository} from "typeorm";
+import {CustomException} from "../exceptions/CustomException";
 
 @Injectable()
 export class UsersService {
@@ -48,11 +49,17 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  async findOneByEmail(email_address: string): Promise<UserEntity | undefined> {
+  async findOneByEmail(email_address: string): Promise<any> {
+    if (!email_address)
+      throw new CustomException("Email address is undefined!")
+
     return await this.userRepository.findOneBy({ email_address: email_address });
   }
 
-  async findOneById(id: any): Promise<UserEntity | undefined> {
+  async findOneById(id: any): Promise<any> {
+    if (!id)
+      throw new CustomException("ID is undefined!")
+
     return await this.userRepository.findOneBy({ id: id } );
   }
 

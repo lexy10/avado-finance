@@ -77,20 +77,12 @@ export class TransactionsController {
     }
   }
 
-  @Post('swap-coin')
-  async swapCoin(@Req() request: Request, @Res() response: Response) {
+  @Post('fetch-p2p-account')
+  async fetchP2pAccount(@Req() request: Request, @Res() response: Response) {
     try {
-      const swap = await this.transactionsService.swapCoin(request.body)
-      response.status(HttpStatus.OK).json({
-        status: true,
-        message: "Swap Successful",
-        wallet: swap
-      })
-    } catch (error) {
-      response.status(HttpStatus.BAD_REQUEST).json({
-        status: false,
-        message: error.message,
-      })
+        //const account =
+    } catch (e) {
+
     }
   }
 

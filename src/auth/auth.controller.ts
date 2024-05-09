@@ -87,12 +87,12 @@ export class AuthController {
     try {
       const verified = await this.authService.verifyAccount(request.body)
       response.status(HttpStatus.OK).json({
-        status: false,
+        status: true,
         message: "Verification Successful",
       });
     } catch (error) {
       response.json({
-        status: true,
+        status: false,
         message: error.message,
       });
     }

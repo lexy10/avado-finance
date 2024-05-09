@@ -23,11 +23,17 @@ import {SettingsService} from "./settings/settings.service";
 import { CurrenciesModule } from './currencies/currencies.module';
 import {CurrenciesService} from "./currencies/currencies.service";
 import {CurrencyEntity} from "./currencies/entities/currency.entity";
+import {JwtModule} from "@nestjs/jwt";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     //HttpModule,
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '10d' },
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST,

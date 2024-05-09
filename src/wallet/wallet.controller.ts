@@ -20,7 +20,7 @@ export class WalletController {
   @Get('get-swappable-currencies')
   async fetchSwappableCurrencies(@Req() request: Request, @Res() response: Response) {
     try {
-      const currencies = await this.transactionsService.fetchSwappableCurrencies()
+      const currencies = await this.walletService.fetchSwappableCurrencies()
       response.status(HttpStatus.OK).json({
         status: true,
         message: 'Currencies Fetched',
@@ -30,6 +30,40 @@ export class WalletController {
       response.status(HttpStatus.BAD_REQUEST).json({
         status: false,
         message: error.message
+      })
+    }
+  }
+
+  @Post('swap-coin')
+  async swapCoin(@Req() request: Request, @Res() response: Response) {
+    try {
+      const swap = await this.walletService.swapCoin(request.body)
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: "Swap Successful",
+        wallet: swap
+      })
+    } catch (error) {
+      response.status(HttpStatus.BAD_REQUEST).json({
+        status: false,
+        message: error.message,
+      })
+    }
+  }
+
+  @Post('get-swap-summary')
+  async swapCoinSummary(@Req() request: Request, @Res() response: Response) {
+    try {
+      const swapSummary = await this.walletService.swapCoinSummary(request.body)
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: "Swap Summary",
+        wallet: swapSummary
+      })
+    } catch (error) {
+      response.status(HttpStatus.BAD_REQUEST).json({
+        status: false,
+        message: error.message,
       })
     }
   }
