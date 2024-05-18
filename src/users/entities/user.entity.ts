@@ -127,7 +127,7 @@ export class UserEntity {
     @Column({ type: "text", nullable: true })
     verification_liveliness_image: string
 
-    @Column({ type: "text", nullable: true })
+    @Column({ type: "enum", enum:['unverified', 'pending', 'verified'], default: 'unverified' })
     verification_status: string
 
     wallets(): { ngn: any, usdt: any, usdc: any, btc: any, eth: any, bnb: any, solana: any, matic: any } {

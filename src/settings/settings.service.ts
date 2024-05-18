@@ -102,13 +102,19 @@ export class SettingsService {
 
   async getBankAccount(userRequest: any) {
     const user = await this.userService.findOneByEmail(userRequest.user.email_address)
-    if (!user.bank_name || !user.account_name || !user.account_number)
-      throw new CustomException('Bank Details not added yet')
-
-    return {
-      bank_name: user.bank_name,
-      account_name: user.account_name,
-      account_number: user.account_number
+    if (!user.bank_name || !user.account_name || !user.account_number) {
+      return {
+        status: false
+      }
+    } else {
+      return {
+        status: true,
+        data: {
+          bank_name: user.bank_name,
+          account_name: user.account_name,
+          account_number: user.account_number
+        }
+      }
     }
   }
 
@@ -136,6 +142,21 @@ export class SettingsService {
     user.bank_name = null
     user.account_name = null
     user.account_number = null
+
+    return await this.userService.updateUser(user)
+  }
+
+  async getVerificationStatus(request: any) {
+    const user = await this.userService.findOneByEmail(request.user.email_address)
+    return user.verification_status
+  }
+
+  async submitVerification(request: any) {
+    const user = await this.userService.findOneByEmail(request.user.email_address)
+
+    user.verification_id_image = request.verification_id_image
+    user.verification_liveliness_image = request.verification_liveliness_image
+    user.verification_status = 'pending'
 
     return await this.userService.updateUser(user)
   }
