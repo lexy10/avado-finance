@@ -24,6 +24,7 @@ import { CurrenciesModule } from './currencies/currencies.module';
 import {CurrenciesService} from "./currencies/currencies.service";
 import {CurrencyEntity} from "./currencies/entities/currency.entity";
 import {JwtModule} from "@nestjs/jwt";
+import {UsersService} from "./users/users.service";
 
 @Module({
   imports: [
@@ -41,7 +42,7 @@ import {JwtModule} from "@nestjs/jwt";
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DATABASE,
-      entities: [UserEntity, TransactionEntity, SettingsEntity, WalletEntity, CurrencyEntity],
+      entities: [UserEntity, TransactionEntity, SettingsEntity, WalletEntity, CurrencyEntity, P2pEntity],
       //entities: [__dirname + '/**/*.entity{.ts,.js}', __dirname + '/entities/*.entity{.ts,.js}'],
 
       //migrationsTableName: 'migration',
@@ -61,13 +62,13 @@ import {JwtModule} from "@nestjs/jwt";
     CurrenciesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, EmailService, SettingsService, CurrenciesService, PriceFetcherCron],
+  providers: [AppService, EmailService, SettingsService, CurrenciesService, PriceFetcherCron, UsersService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // Apply AuthMiddleware to the routes you want to protect
     consumer
         .apply(AuthMiddleware)
-        .forRoutes('/transactions*', '/users*', '/wallets*', '/p2p*', '/dashboard*', '/auth/verify');
+        .forRoutes('/transactions*', '/users*', '/wallets*', '/p2p*', '/dashboard*', '/auth/verify', '/settings*');
   }
 }

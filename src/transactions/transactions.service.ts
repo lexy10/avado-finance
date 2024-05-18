@@ -18,7 +18,6 @@ import {CurrenciesService} from "../currencies/currencies.service";
 export class TransactionsService {
   constructor(
       private userService: UsersService,
-      private settingsService: SettingsService,
       @InjectRepository(TransactionEntity) private transactionRepository: Repository<TransactionEntity>
   ) {}
 
@@ -134,7 +133,11 @@ export class TransactionsService {
     }
 
     // Save transaction
-    return this.transactionRepository.save(transaction);
+    return this.createTransaction(transaction);
+  }
+
+  async createTransaction(transaction: TransactionEntity) {
+    return await this.transactionRepository.save(transaction)
   }
 
   async giveDepositBonus(user: UserEntity) {

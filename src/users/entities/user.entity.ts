@@ -29,6 +29,9 @@ export class UserEntity {
     phone_number: string
 
     @Column({ type: "varchar", nullable: true })
+    date_of_birth: string
+
+    @Column({ type: "varchar", nullable: true })
     transaction_pin: number
 
     @Column({ type: "varchar", nullable: true })
@@ -108,6 +111,24 @@ export class UserEntity {
 
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
+
+    @Column({ type: "varchar", nullable: true })
+    bank_name: string
+
+    @Column({ type: "varchar", nullable: true })
+    account_name: string
+
+    @Column({ type: "varchar", nullable: true })
+    account_number: string
+
+    @Column({ type: "text", nullable: true })
+    verification_id_image: string
+
+    @Column({ type: "text", nullable: true })
+    verification_liveliness_image: string
+
+    @Column({ type: "text", nullable: true })
+    verification_status: string
 
     wallets(): { ngn: any, usdt: any, usdc: any, btc: any, eth: any, bnb: any, solana: any, matic: any } {
         return {

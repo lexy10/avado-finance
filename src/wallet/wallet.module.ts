@@ -11,13 +11,15 @@ import {CurrenciesService} from "../currencies/currencies.service";
 import {TransactionEntity} from "../transactions/entities/transaction.entity";
 import {SettingsEntity} from "../settings/entities/setting.entity";
 import {CurrencyEntity} from "../currencies/entities/currency.entity";
+import {P2pService} from "../p2p/p2p.service";
+import {P2pEntity} from "../p2p/entities/p2p.entity";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([UserEntity, TransactionEntity, SettingsEntity, CurrencyEntity]),
+    TypeOrmModule.forFeature([UserEntity, TransactionEntity, SettingsEntity, CurrencyEntity, P2pEntity]),
   ],
   controllers: [WalletController],
-  providers: [WalletService, UsersService, TransactionsService, SettingsService, CurrenciesService],
+  providers: [WalletService, UsersService, TransactionsService, SettingsService, CurrenciesService, P2pService],
 })
 export class WalletModule {}

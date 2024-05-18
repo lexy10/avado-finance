@@ -13,40 +13,136 @@ export class SettingsController {
     return this.settingsService.create(createSettingDto);
   }
 
-  @Get()
+  @Get('/profile')
   async getProfile(@Req() request: Request, @Res() response: Response) {
-
+    try {
+      const profile = await this.settingsService.getProfile(request.body);
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Profile fetched successfully',
+        data: profile
+      })
+    } catch (e) {
+      response.status(HttpStatus.NOT_FOUND).json({
+        status: false,
+        message: e.message
+      })
+    }
   }
 
-  @Patch()
+  @Patch('/update-profile')
   async updateProfile(@Req() request: Request, @Res() response: Response) {
-
+    try {
+      const updatedProfile = await this.settingsService.updateProfile(request.body)
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Profile updated successfully',
+        data: updatedProfile
+      })
+    } catch (e) {
+      response.status(HttpStatus.NOT_FOUND).json({
+        status: false,
+        message: e.message
+      })
+    }
   }
 
-  @Put()
-  async changePassword(@Req() request: Request, @Res() response: Response) {
-
+  @Patch('/update-password')
+  async updatePassword(@Req() request: Request, @Res() response: Response) {
+      try {
+        const updatedPassword = await this.settingsService.updatePassword(request.body)
+        response.status(HttpStatus.OK).json({
+          status: true,
+          message: 'Password updated successfully',
+        })
+      } catch (e) {
+        response.status(HttpStatus.NOT_FOUND).json({
+          status: false,
+          message: e.message
+        })
+      }
   }
 
-  @Get()
-  async getBankAccounts(@Req() request: Request, @Res() response: Response) {
-
+  @Get('/bank-details')
+  async getBankAccount(@Body() requestBody: Body, @Res() response: Response, ) {
+      try {
+        const bankAccount = await this.settingsService.getBankAccount(requestBody)
+        response.status(HttpStatus.OK).json({
+          status: true,
+          message: 'Bank details fetched successfully',
+          bank_details: bankAccount
+        })
+      } catch (e) {
+        response.status(HttpStatus.NOT_FOUND).json({
+          status: false,
+          message: e.message
+        })
+      }
   }
 
-  @Post()
+  @Post('/bank-details/add')
   async addBankAccount(@Req() request: Request, @Res() response: Response) {
-
+    try {
+      const bankAccount = await this.settingsService.updateBankAccount(request.body)
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Bank details added successfully',
+      })
+    } catch (e) {
+      response.status(HttpStatus.NOT_FOUND).json({
+        status: false,
+        message: e.message
+      })
+    }
   }
 
-  @Delete()
+  @Post('/bank-details/update')
+  async updateBankAccount(@Req() request: Request, @Res() response: Response) {
+    try {
+      const bankAccount = await this.settingsService.updateBankAccount(request.body)
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Bank details updated successfully',
+      })
+    } catch (e) {
+      response.status(HttpStatus.NOT_FOUND).json({
+        status: false,
+        message: e.message
+      })
+    }
+  }
+
+  @Delete('/bank-details/remove')
   async removeBankAccount(@Req() request: Request, @Res() response: Response) {
-
+    try {
+      const bankAccount = await this.settingsService.removeBankAccount(request.body)
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Bank account removed successfully',
+      })
+    } catch (e) {
+      response.status(HttpStatus.NOT_FOUND).json({
+        status: false,
+        message: e.message
+      })
+    }
   }
 
-
-
-  @Get()
-  async findAll(@Req() request: Request, @Res() response: Response) {
+  @Get('/referrals')
+  async getReferrals(@Req() request: Request, @Res() response: Response) {
+    try {
+      const referrals = await this.settingsService.getReferrals(request.body)
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Referrals fetched successfully',
+        data: referrals
+      })
+    } catch (e) {
+      response.status(HttpStatus.NOT_FOUND).json({
+        status: false,
+        message: e.message
+      })
+    }
   }
 
   @Get(':id')

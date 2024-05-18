@@ -9,7 +9,7 @@ export class P2pEntity {
     account_name: string
 
     @Column({ type: "varchar" })
-    account_number: number
+    account_number: string
 
     @Column({ type: "varchar" })
     bank_name: string
@@ -21,7 +21,7 @@ export class P2pEntity {
     status: string
 
     @Column( { type: "float", default: 0 } )
-    limit: string
+    limit: number
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;

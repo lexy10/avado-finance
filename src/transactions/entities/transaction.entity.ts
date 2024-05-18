@@ -12,7 +12,7 @@ export class TransactionEntity {
     @Column({ type: "float", nullable: true})
     amount_in_usd: number
 
-    @Column({ type: "enum", enum: ['deposit', 'withdrawal', 'swap', 'transfer'] })
+    @Column({ type: "enum", enum: ['deposit', 'withdrawal', 'swap', 'transfer', 'p2p'] })
     type: string
 
     @Column({type: "varchar", nullable: true})
@@ -25,7 +25,7 @@ export class TransactionEntity {
     from_wallet_currency: string
 
     @Column({type: "varchar", nullable: true})
-    to_wallet_address: string
+    to_wallet_address: any
 
     @Column({type: "varchar", nullable: true})
     to_wallet_currency: string

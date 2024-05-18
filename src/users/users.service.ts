@@ -56,6 +56,13 @@ export class UsersService {
     return await this.userRepository.findOneBy({ email_address: email_address });
   }
 
+  async findReferrals(user: UserEntity): Promise<any> {
+    if (!user)
+      throw new CustomException("User is undefined!")
+
+    return await this.userRepository.findBy({ referrer: user });
+  }
+
   async findOneById(id: any): Promise<any> {
     if (!id)
       throw new CustomException("ID is undefined!")

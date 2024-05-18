@@ -4,11 +4,13 @@ import { CreateWalletDto } from './dto/create-wallet.dto';
 import { UpdateWalletDto } from './dto/update-wallet.dto';
 import {raw, Request, Response} from "express";
 import {TransactionsService} from "../transactions/transactions.service";
+import {P2pService} from "../p2p/p2p.service";
 
 @Controller('wallets')
 export class WalletController {
   constructor(
       private readonly walletService: WalletService,
+      private readonly p2pService: P2pService,
   ) {}
 
   @Post('get-deposit-address')
@@ -75,6 +77,39 @@ export class WalletController {
       response.status(HttpStatus.BAD_REQUEST).json({
         status: false,
         message: error.message,
+      })
+    }
+  }
+
+  @Post('get-p2p-account')
+  async getP2pAccount(@Req() request: Request, @Res() response: Response) {
+    try {
+      const p2pAccount = await this.p2pService.getAccount(request.body)
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Account fetched',
+        account: p2pAccount
+      })
+    } catch (error) {
+      response.status(HttpStatus.BAD_REQUEST).json({
+        status: false,
+        message: error.message
+      })
+    }
+  }
+  
+  @Post('payment-made')
+  async paymentMade(@Req() request: Request, @Res() response: Response) {
+    try {
+      const p2pAccount = await this.p2pService.makeP2pPayment(request.body)
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Payment Pending',
+      })
+    } catch (error) {
+      response.status(HttpStatus.BAD_REQUEST).json({
+        status: false,
+        message: error.message
       })
     }
   }
