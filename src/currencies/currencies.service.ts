@@ -38,7 +38,7 @@ export class CurrenciesService {
       case 'eth':
         return 'ethereum'
       case 'sol':
-        return 'sol'
+        return 'solana'
       case 'bnb':
         return 'binancecoin'
       case 'matic':
