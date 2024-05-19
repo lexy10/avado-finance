@@ -21,6 +21,21 @@ export class EmailService {
         });
     }
 
+    async sendUserResetPassword(user: UserEntity, url: string) {
+        //const url = `example.com/auth/confirm?token=${token}`;
+
+        await this.mailerService.sendMail({
+            to: user.email_address,
+            // from: '"Support Team" <support@example.com>', // override default from
+            subject: 'Password Reset | Avado Finance',
+            template: './reset-password', // `.hbs` extension is appended automatically
+            context: { // ✏️ filling curly brackets with content
+                name: user.full_name,
+                url,
+            },
+        });
+    }
+
     /*async sendTestEmail(recipient: string, body = 'This is a test mail'): Promise<void> {
         const options: MailgunMessageData = {
             from: 'Excited User <me@samples.mailgun.org>',

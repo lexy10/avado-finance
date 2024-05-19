@@ -97,6 +97,26 @@ export class AuthService {
     return refCode;
   }
 
+  async generateUniquePasswordToken(): Promise<string> {
+    let passwordToken: string;
+
+    // Loop until a unique refCode is generated
+    do {
+      // Generate a new 6-character refCode
+      passwordToken = generateRandomRefCode(20);
+
+      // Check if refCode already exists in the database
+      const existingRefCode = await this.userRepository.findOneBy({ password_token: passwordToken });
+
+      // If refCode does not exist, break out of the loop
+      if (!existingRefCode) {
+        break;
+      }
+    } while (true);
+
+    return passwordToken;
+  }
+
   async verifyAccount(requestParams) {
     const isUserExisting = await this.usersService.findOneByEmail(requestParams.user.email_address)
 
@@ -107,6 +127,38 @@ export class AuthService {
       throw new CustomException("Invalid verification code")
 
     return await this.usersService.verifyUser(isUserExisting)
+  }
+
+  async forgotPassword(request) {
+    const user = await this.usersService.findOneByEmail(request.email_address)
+    if (!user) {
+      throw new CustomException('User not found')
+    }
+
+    const token = await this.generateUniquePasswordToken();
+
+    user.password_token = token
+    let user1 = await this.usersService.updateUser(user)
+
+    const url = 'https://www.avadofinance.com/password-reset?email='+user1.email_address+'&token='+token
+
+    return await this.emailService.sendUserResetPassword(user1, url)
+  }
+
+  async resetPassword(request) {
+    const user = await this.usersService.findPasswordResetValidity(request.email_address, request.token)
+    if (!request.email_address || !request.token || !user)
+      throw new CustomException('Invalid reset password link')
+
+    if (!request.new_password)
+      throw new CustomException('New password required')
+
+    if (request.new_password !== request.confirm_new_password)
+      throw new CustomException('Password does not match')
+
+    user.password = bcrypt.hashSync(request.new_password, 10);
+
+    return await this.usersService.updateUser(user)
   }
 
   findAll() {

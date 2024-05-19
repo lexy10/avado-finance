@@ -56,6 +56,16 @@ export class UsersService {
     return await this.userRepository.findOneBy({ email_address: email_address });
   }
 
+  async findPasswordResetValidity(email_address: string, token: string): Promise<any> {
+    if (!email_address)
+      throw new CustomException("Email address is undefined!")
+
+    if (!token)
+      throw new CustomException("Password token is undefined!")
+
+    return await this.userRepository.findOneBy({ email_address: email_address, password_token: token });
+  }
+
   async findReferrals(user: UserEntity): Promise<any> {
     if (!user)
       throw new CustomException("User is undefined!")

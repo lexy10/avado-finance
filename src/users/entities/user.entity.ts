@@ -76,6 +76,9 @@ export class UserEntity {
     @Column({ type: "float", nullable: true })
     referral_bonus: number
 
+    @Column({ type: "varchar", nullable: true })
+    password_token: string
+
     @ManyToOne(type => UserEntity, { nullable: true }) // Many users can have the same referrer (ManyToOne)
     referrer: UserEntity; // Refers to another UserEntity
 

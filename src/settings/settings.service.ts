@@ -80,7 +80,7 @@ export class SettingsService {
       throw new CustomException("Current password incorrect")
 
     if (request.new_password !== request.confirm_new_password)
-      throw new CustomException("New Password do not match")
+      throw new CustomException("New Password does not match")
 
     user.password = bcrypt.hashSync(request.new_password, 10);
 

@@ -11,8 +11,6 @@ import {UsersService} from "../users/users.service";
 export class AuthController {
   constructor(
       private readonly authService: AuthService,
-      private readonly emailService: EmailService,
-      private readonly usersService: UsersService
   ) {}
 
   @Post("register")
@@ -98,15 +96,36 @@ export class AuthController {
     }
   }
 
-  @Get('verify/:email/:code')
-  forgotPassword(@Param('email') email: string, @Param('code') code: string) {
-    //return this.authService.findOne(+id);
-    console.log("Email and Code: ", email + " - " + code)
+  @Post('forgot-password')
+  async forgotPassword(@Req() request: Request, @Res() response: Response) {
+    try {
+      const forgotPassword = await this.authService.forgotPassword(request.body)
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: "Password reset request Successful",
+      });
+    } catch (e) {
+      response.json({
+        status: false,
+        message: e.message,
+      });
+    }
   }
 
-  @Patch(':id')
-  resetPassword(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
+  @Post('reset-password')
+  async resetPassword(@Req() request: Request, @Res() response: Response) {
+    try {
+      const resetPassword = await this.authService.resetPassword(request.body)
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: "Password reset successfully",
+      });
+    } catch (e) {
+      response.json({
+        status: false,
+        message: e.message,
+      });
+    }
   }
 
   @Delete(':id')
