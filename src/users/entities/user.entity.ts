@@ -62,7 +62,7 @@ export class UserEntity {
     eth_balance: number
 
     @Column({ type: 'float', default: 0 })
-    solana_balance: number
+    sol_balance: number
 
     @Column({ type: 'float', default: 0 })
     bnb_balance: number
@@ -98,7 +98,7 @@ export class UserEntity {
     eth_wallet_address: string
 
     @Column({ type: "varchar", unique: true, nullable: true })
-    solana_wallet_address: string
+    sol_wallet_address: string
 
     @Column({ type: "varchar", unique: true, nullable: true })
     bnb_wallet_address: string
@@ -133,7 +133,7 @@ export class UserEntity {
     @Column({ type: "enum", enum:['unverified', 'pending', 'verified'], default: 'unverified' })
     verification_status: string
 
-    wallets(): { ngn: any, usdt: any, usdc: any, btc: any, eth: any, bnb: any, solana: any, matic: any } {
+    wallets(): { ngn: any, usdt: any, usdc: any, btc: any, eth: any, bnb: any, sol: any, matic: any } {
         return {
             ngn: {
                 "balance": this.ngn_balance
@@ -158,9 +158,9 @@ export class UserEntity {
                 "address": this.bnb_wallet_address,
                 "balance": this.bnb_balance
             },
-            solana: {
-                "address": this.solana_wallet_address,
-                "balance": this.solana_balance
+            sol: {
+                "address": this.sol_wallet_address,
+                "balance": this.sol_balance
             },
             matic: {
                 "address": this.matic_wallet_address,

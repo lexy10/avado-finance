@@ -37,8 +37,8 @@ export class CurrenciesService {
         return 'usd-coin'
       case 'eth':
         return 'ethereum'
-      case 'solana':
-        return 'solana'
+      case 'sol':
+        return 'sol'
       case 'bnb':
         return 'binancecoin'
       case 'matic':
@@ -106,7 +106,7 @@ export class CurrenciesService {
       { coin_name: 'usdc', coin_fullname: 'USD Coin', coin_rate: 0 },
       { coin_name: 'bnb', coin_fullname: 'Binance Coin', coin_rate: 0 },
       { coin_name: 'eth', coin_fullname: 'Ethereum', coin_rate: 0 },
-      { coin_name: 'solana', coin_fullname: 'Solana', coin_rate: 0 },
+      { coin_name: 'sol', coin_fullname: 'Solana', coin_rate: 0 },
       { coin_name: 'matic', coin_fullname: 'Matic', coin_rate: 0 },
     ];
     /*for (const coin of coins) {

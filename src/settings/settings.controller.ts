@@ -62,7 +62,7 @@ export class SettingsController {
     }
   }
 
-  @Patch('/update-password')
+  @Post('/update-password')
   async updatePassword(@Req() request: Request, @Res() response: Response) {
       try {
         const updatedPassword = await this.settingsService.updatePassword(request.body)

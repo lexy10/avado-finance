@@ -68,8 +68,8 @@ export class DashboardService {
         return 'usd-coin'
       case 'eth':
         return 'ethereum'
-      case 'solana':
-        return 'solana'
+      case 'sol':
+        return 'sol'
       case 'bnb':
         return 'binancecoin'
       case 'matic':

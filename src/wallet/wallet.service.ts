@@ -73,7 +73,7 @@ export class WalletService {
   }
 
   async findAll(requestParams) {
-    const wallets = ['ngn', 'usdt', 'usdc', 'btc', 'eth', 'bnb', 'solana', 'matic']
+    const wallets = ['ngn', 'usdt', 'usdc', 'btc', 'eth', 'bnb', 'sol', 'matic']
     const userAccount = await this.userService.findOneByEmail(requestParams.user.email_address);
 
     // Initialize an empty object to store the result
