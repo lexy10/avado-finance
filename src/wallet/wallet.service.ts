@@ -213,6 +213,10 @@ export class WalletService {
     return await this.currenciesService.fetchCurrenciesName()
   }
 
+  async withdraw(request) {
+
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} wallet`;
   }

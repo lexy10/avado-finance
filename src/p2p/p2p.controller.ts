@@ -9,7 +9,7 @@ export class P2pController {
   constructor(private readonly p2pService: P2pService) {}
 
   @Get()
-  /*async loadAccounts(@Req() request: Request, @Res() response: Response) {
+  async loadAccounts(@Req() request: Request, @Res() response: Response) {
     try {
       const accounts = await this.p2pService.loadAccounts()
       response.status(HttpStatus.OK).json({
@@ -22,7 +22,7 @@ export class P2pController {
         message: error.message
       })
     }
-  }*/
+  }
 
   @Post()
   create(@Body() createP2pDto: CreateP2pDto) {
