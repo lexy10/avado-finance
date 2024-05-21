@@ -95,13 +95,17 @@ export class P2pService {
       throw new CustomException("Please enter deposit amount in NGN")
     }
 
-    if (!request.bank_name || !request.account_name || !request.account_number) {
+    if (!request.account_id) {
       throw new CustomException("Bank details is not valid")
     }
 
     const user = await this.userService.findOneByEmail(request.user.email_address)
 
-    const account = await this.p2pRepository.findOneBy({ account_name: request.account_name, account_number: request.account_number })
+    const account = await this.p2pRepository.findOneBy({ id: request.account_id })
+
+    if (!account) {
+      throw new CustomException("Bank details is not valid")
+    }
 
     const transaction = new TransactionEntity()
     transaction.amount = request.amount
