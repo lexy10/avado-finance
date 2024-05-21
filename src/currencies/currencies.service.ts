@@ -21,8 +21,11 @@ export class CurrenciesService {
 
     const coins = await this.currenciesRepository.find();
 
+    // Filter out the coins where coin_name is 'ngn'
+    const filteredCoins = coins.filter(coin => coin.coin_name !== 'ngn');
+
     // Extract the coin names from the result array
-    const coinsNames = coins.map(coin => coin.coin_name);
+    const coinsNames = filteredCoins.map(coin => coin.coin_name);
 
     return await this.convertCryptoBalancesToUSD(coinsNames)
   }
