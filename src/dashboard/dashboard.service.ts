@@ -36,7 +36,7 @@ export class DashboardService {
     });
 
     //overallBalance += user.usd_balance
-    overallBalance += (user.ngn_balance / 1400)
+    //overallBalance += (user.ngn_balance / 1400)
 
     return overallBalance.toFixed(2)
   }
@@ -52,8 +52,25 @@ export class DashboardService {
 
     transactions = user.transactions.slice(0, limit);
 
+    const currenciesArray = ['btc', 'usdt', 'ngn']
+    const currencies = await this.currenciesService.fetchCurrencies()
+
+    let wallet = {};
+
+    // Filter out the coins where coin_name is 'ngn'
+    const filteredCurrencies = currencies.filter(currency => (currency.coin_name == 'btc' || currency.coin_name == 'usdt' || currency.coin_name == 'ngn'));
+
+    filteredCurrencies.forEach(currency => {
+      wallet[currency.coin_name] = {
+          amount: user[currency.coin_name+'_balance'],
+          amount_in_usd: user[currency.coin_name+'_balance'] * currency.coin_rate,
+          rate: currency.coin_rate
+        }
+      })
+
     return {
       balance: balance,
+      wallet: wallet,
       transactions: transactions
     };
   }
