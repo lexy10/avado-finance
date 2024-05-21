@@ -32,7 +32,7 @@ export class WalletService {
       await this.userService.updateUser(user)
       return walletAddressResult.result.address
     } else {
-      return { status: true, wallet_address: user[requestParams.coin+'_wallet_address'] }
+      return user[requestParams.coin+'_wallet_address']
     }
   }
 
