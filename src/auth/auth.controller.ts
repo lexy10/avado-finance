@@ -21,7 +21,7 @@ export class AuthController {
         status: true,
         message: "Registration Successful",
         extras: "Verification code sent to email address",
-        token: registeredUser,
+        ...registeredUser,
       }, )
     } catch (error) {
       response.status(HttpStatus.CONFLICT).json({
