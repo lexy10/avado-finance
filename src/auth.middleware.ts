@@ -2,10 +2,11 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import {JwtService} from "@nestjs/jwt";
+import {UsersService} from "./users/users.service";
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-    constructor(private readonly jwtService: JwtService) {}
+    constructor(private readonly jwtService: JwtService, private readonly userService: UsersService) {}
     async use(req: Request, res: Response, next: NextFunction) {
         // Check if Authorization header is present
         //console.log("path", req.baseUrl)
@@ -30,6 +31,10 @@ export class AuthMiddleware implements NestMiddleware {
             if (!decodedToken || !decodedToken.sub) {
                 throw new UnauthorizedException('Invalid token');
             }
+
+            const user = await this.userService.findOneByEmail(decodedToken.sub)
+            if (!user)
+                throw new UnauthorizedException('Invalid token')
 
             // Attach the email address to the request object for future use
             req.body.user = {...decodedToken};

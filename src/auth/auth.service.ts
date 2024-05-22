@@ -70,11 +70,25 @@ export class AuthService {
       requestParams.referrer = null
 
 
-      const user = await this.usersService.createUser(requestParams)
+    const user = await this.usersService.createUser(requestParams)
 
-      const payload = {sub: user.email_address, username: user.username};
-      await this.emailService.sendUserConfirmation(user, code)
-      return await this.jwtService.signAsync(payload)
+    const payload = {
+      sub: user.email_address,
+      id: user.id,
+      iss: 'AvadoAuth',
+      username: user.username,
+      email_address: user.email_address,
+      user_role: user.user_role
+    };
+
+    await this.emailService.sendUserConfirmation(user, code)
+
+    const token = await this.jwtService.signAsync(payload)
+    return {
+      user_role: user.user_role,
+      is_verified: user.is_verified,
+      token: token
+    }
   }
 
   async generateUniqueRefCode(): Promise<string> {

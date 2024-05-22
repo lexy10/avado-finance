@@ -214,6 +214,7 @@ export class WalletService {
   }
 
   async withdraw(request) {
+    const user = await this.userService.findOneByEmail(request.user.email_address)
 
   }
 
