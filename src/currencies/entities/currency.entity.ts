@@ -27,6 +27,9 @@ export class CurrencyEntity {
     @Column({ type: 'float' })
     coin_rate: number
 
+    @Column({ type: 'float', nullable: true })
+    coin_old_rate: number
+
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
 

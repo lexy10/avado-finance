@@ -37,7 +37,10 @@ export class CurrenciesService {
     const filteredCoins = coins.filter(coin => coin.coin_name !== 'ngn');
 
     // Extract the coin names from the result array
-    const coinsNames = filteredCoins.map(coin => coin.coin_name);
+    const coinsNames = filteredCoins.map(coin => ({
+      name: coin.coin_name,
+      rate: coin.coin_rate
+    }));
 
     return await this.convertCryptoBalancesToUSD(coinsNames)
   }
@@ -61,9 +64,10 @@ export class CurrenciesService {
     }
   }
 
-  async convertCryptoBalancesToUSD(balances) {
-    if ((this.counter + 1) == balances.length) this.counter = 0
-    const currency = balances[this.counter]
+  async convertCryptoBalancesToUSD(coinNames) {
+    if ((this.counter + 1) == coinNames.length) this.counter = 0
+    const currency = coinNames[this.counter].name
+    const rate = coinNames[this.counter].rate
     try {
 
       axios.request({
@@ -76,10 +80,11 @@ export class CurrenciesService {
 
             const curr = await this.currenciesRepository.findOneBy( { coin_name: currency })
             curr['coin_rate'] = currentPriceInUSD
+            curr['coin_old_rate'] = rate
             await this.currenciesRepository.save(curr)
             ++this.counter
 
-            console.log(currentPriceInUSD)
+            console.log(curr)
 
             return currentPriceInUSD
 

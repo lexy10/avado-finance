@@ -33,3 +33,23 @@ export function generateIdWithTime(): string {
     // Concatenate timestamp and random string
     return timestamp + randomString;
 }
+
+export function formatBalance(amount: number, currency: string): number {
+    switch (currency) {
+        case 'btc': // Bitcoin
+            return parseFloat(amount.toFixed(8)); // 8 decimal places
+        case 'usdt': // Tether
+        case 'usdc': // USD Coin
+            return parseFloat(amount.toFixed(2)); // 2 decimal places
+        case 'eth': // Ethereum
+            return parseFloat(amount.toFixed(8)); // 18 decimal places
+        case 'sol': // Solana
+            return parseFloat(amount.toFixed(9)); // 9 decimal places
+        case 'matic': // Polygon (MATIC)
+            return parseFloat(amount.toFixed(8)); // 18 decimal places
+        case 'bnb': // Binance Coin
+            return parseFloat(amount.toFixed(8)); // 8 decimal places
+        default:
+            return parseFloat(amount.toFixed(2)); // Default to 2 decimal places if coin type is unknown
+    }
+}

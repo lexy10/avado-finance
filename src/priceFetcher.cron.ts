@@ -9,7 +9,7 @@ export class PriceFetcherCron {
   constructor(private readonly currenciesService: CurrenciesService) {
   }
 
-  @Cron(CronExpression.EVERY_MINUTE) // Specify the cron schedule as per your requirement
+  @Cron(CronExpression.EVERY_30_MINUTES) // Specify the cron schedule as per your requirement
   async runCronJob() {
     try {
       //console.log('Coin Price Getter Cron Executed!');

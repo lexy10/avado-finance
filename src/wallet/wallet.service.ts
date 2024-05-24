@@ -4,7 +4,7 @@ import { UpdateWalletDto } from './dto/update-wallet.dto';
 import {UsersService} from "../users/users.service";
 import {CustomException} from "../exceptions/CustomException";
 import {TransactionEntity} from "../transactions/entities/transaction.entity";
-import {generateIdWithTime, generateTransactionHash} from "../utils";
+import {formatBalance, generateIdWithTime, generateTransactionHash} from "../utils";
 import {CurrenciesService} from "../currencies/currencies.service";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
@@ -162,7 +162,7 @@ export class WalletService {
     const fee = 0;
 
     return {
-      amount: swappedAmount,
+      amount: formatBalance(swappedAmount, swapFromCoin),
       fee: fee
     }
   }
@@ -205,7 +205,7 @@ export class WalletService {
     let swappedAmount = (parseFloat(fromCoinEntity.coin_rate) / parseFloat(toCoinEntity.coin_rate)) * parseFloat(swapFromValue)
 
     // set swap bonus
-    if (!user.has_received_swap_bonus && (swapFromValueInUSD >= 15) && swapToCoin == 'usdc' && swapNetwork == 'stellar') {
+    if (!user.has_received_swap_bonus && (swapFromValueInUSD >= 15) && swapToCoin == 'usdc') {
       swappedAmount += 10
       user.has_received_swap_bonus = true
     }
@@ -213,15 +213,18 @@ export class WalletService {
     // decrement balance
     user[swapFromCoin+'_balance'] -= swapFromValue
 
+    user[swapFromCoin+'_balance'] = formatBalance(user[swapFromCoin+'_balance'], swapFromCoin)
+
     // increment balance
     user[swapToCoin+'_balance'] += swappedAmount
+    user[swapToCoin+'_balance'] = formatBalance(user[swapToCoin+'_balance'], swapToCoin)
 
     const userValue = await this.userService.updateUser(user)
 
     // create transaction
-    const swapTransaction = new TransactionEntity()
-    swapTransaction.amount = swapFromValue
-    swapTransaction.amount_in_usd = swapFromValueInUSD
+    let swapTransaction = new TransactionEntity()
+    swapTransaction.amount = formatBalance(swapFromValue, swapFromCoin)
+    swapTransaction.amount_in_usd = formatBalance(swapFromValueInUSD, 'usd')
     swapTransaction.type = 'swap'
     swapTransaction.currency = swapFromCoin
     swapTransaction.from_wallet_currency = swapFromCoin
@@ -246,7 +249,7 @@ export class WalletService {
 
   async withdraw(request) {
     const user = await this.userService.findOneByEmail(request.user.email_address)
-    if (!request.type)
+    if (!request.type || (request.type !== 'crypto_withdrawal' && request.type !== 'p2p_withdrawal'))
       throw new CustomException('Withdrawal type is invalid')
 
     if (request.type == 'crypto_withdrawal') {
@@ -256,11 +259,106 @@ export class WalletService {
       if (!request.amount)
         throw new CustomException('Amount is invalid')
 
-      if (!request.to_wallet)
-        throw new CustomException('Recipient wallet is invalid')
+      if (!request.to_wallet_currency)
+        throw new CustomException('Recipient wallet currency is invalid')
+
+      if (!request.to_wallet_network)
+        throw new CustomException('Recipient currency network is invalid')
+
+      if (!request.to_wallet_address)
+        throw new CustomException('Recipient wallet address is invalid')
 
       // check for balance if greater than amount
-      //const availableAmount = user[request.cu]
+      const availableBalance = user[request.from_currency+'_balance'];
+
+      if (parseFloat(request.amount) > parseFloat(availableBalance))
+        throw new CustomException('Balance is lesser than requested amount')
+
+
+      const coins = await this.currenciesService.fetchCurrencies()
+      const fromCoinEntity = coins.find(entity => entity.coin_name === request.from_currency);
+
+      const withdrawAmountInUSD = request.amount * fromCoinEntity.coin_rate
+
+      //deduct from user balance
+      user[request.from_currency+'_balance'] = parseFloat(availableBalance) - parseFloat(request.amount)
+
+      user[request.from_currency+'_balance'] = formatBalance(user[request.from_currency+'_balance'], request.from_currency)
+
+      await this.userService.updateUser(user)
+
+      // fetch first address
+      const address = await this.getDepositAddress({ currency: request.from_currency, network: request.to_wallet_network, user: user})
+
+      // create transaction
+      let withdrawalTransaction = new TransactionEntity()
+
+      withdrawalTransaction.amount = formatBalance(request.amount, request.from_currency)
+      withdrawalTransaction.amount_in_usd = formatBalance(withdrawAmountInUSD, 'usd')
+      withdrawalTransaction.type = 'withdrawal'
+      withdrawalTransaction.currency = request.from_currency
+      withdrawalTransaction.from_wallet_currency = request.from_currency
+      withdrawalTransaction.from_wallet_address = address
+      withdrawalTransaction.to_wallet_currency = request.to_wallet_currency
+      withdrawalTransaction.transaction_network = request.to_wallet_network
+      withdrawalTransaction.transaction_status = 'pending'
+      withdrawalTransaction.transaction_hash = generateTransactionHash()
+      withdrawalTransaction.transaction_id = generateIdWithTime()
+      withdrawalTransaction.transaction_fee = 0
+      withdrawalTransaction.transaction_fee_in_usd = 0
+      withdrawalTransaction.transaction_confirmations = "0"
+      withdrawalTransaction.user = user
+
+      return await this.transactionRepository.save(withdrawalTransaction)
+
+    }
+
+    else if (request.type == 'p2p_withdrawal') {
+      if (!request.from_currency)
+        throw new CustomException('Currency is invalid')
+
+      if (!request.bank_name || !request.account_name || !request.account_number)
+        throw new CustomException('Bank details is invalid')
+
+      if (!request.amount)
+        throw new CustomException('Amount is invalid')
+
+      // check for balance if greater than amount
+      const availableBalance = user[request.from_currency+'_balance'];
+
+      if (parseFloat(request.amount) > parseFloat(availableBalance))
+        throw new CustomException('Balance is lesser than requested amount')
+
+      const coins = await this.currenciesService.fetchCurrencies()
+      const fromCoinEntity = coins.find(entity => entity.coin_name === request.from_currency);
+
+      const withdrawAmountInUSD = request.amount * fromCoinEntity.coin_rate
+
+      //deduct from user balance
+      user[request.from_currency+'_balance'] = parseFloat(availableBalance) - parseFloat(request.amount)
+
+      user[request.from_currency+'_balance'] = formatBalance(user[request.from_currency+'_balance'], request.from_currency)
+
+      await this.userService.updateUser(user)
+
+      // create transaction
+      let withdrawalTransaction = new TransactionEntity()
+
+      withdrawalTransaction.amount = parseFloat(request.amount)
+      withdrawalTransaction.amount_in_usd = withdrawAmountInUSD
+      withdrawalTransaction.type = 'withdrawal'
+      withdrawalTransaction.currency = request.from_currency
+      withdrawalTransaction.from_wallet_currency = request.from_currency
+      withdrawalTransaction.to_wallet_currency = 'Own Bank'
+      withdrawalTransaction.transaction_status = 'pending'
+      withdrawalTransaction.transaction_hash = generateTransactionHash()
+      withdrawalTransaction.transaction_id = generateIdWithTime()
+      withdrawalTransaction.transaction_fee = 0
+      withdrawalTransaction.transaction_fee_in_usd = 0
+      withdrawalTransaction.transaction_confirmations = "0"
+      withdrawalTransaction.user = user
+
+      return await this.transactionRepository.save(withdrawalTransaction)
 
     }
 

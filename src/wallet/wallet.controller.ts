@@ -125,10 +125,11 @@ export class WalletController {
   @Post('withdraw')
   async withdraw(@Req() request: Request, @Res() response: Response) {
     try {
-      const p2pAccount = await this.walletService.withdraw(request.body)
+      const withdraw = await this.walletService.withdraw(request.body)
       response.status(HttpStatus.OK).json({
         status: true,
-        message: 'Payment Pending',
+        message: 'Withdrawal Pending',
+        data: withdraw
       })
     } catch (error) {
       response.status(HttpStatus.BAD_REQUEST).json({
