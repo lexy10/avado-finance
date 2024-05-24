@@ -1,26 +1,27 @@
-import {Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
+import {
+    Column,
+    CreateDateColumn,
+    Entity, ManyToMany,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from "typeorm";
 
-@Entity({ name: 'wallets' })
-export class WalletEntity {
+@Entity({ name: 'currency_networks' })
+export class CurrencyNetworkEntity {
     @PrimaryGeneratedColumn({ type: "bigint" })
     id: number
 
-    @Column({ type: 'bigint' })
-    user_id: number
+    @Column({ type: 'varchar', nullable: true })
+    network_iso: string
 
     @Column({ type: 'varchar', nullable: true })
-    wallet_address: string
-
-    @Column({ type: 'varchar', nullable: true })
-    wallet_currency: string
-
-    @Column({ type: 'varchar', nullable: true })
-    wallet_network: number
+    network_name: string
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
 
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
-
 }

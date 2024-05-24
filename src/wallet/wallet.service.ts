@@ -11,28 +11,59 @@ import {Repository} from "typeorm";
 import qs from "qs";
 import axios from "axios";
 import crypto from "crypto";
+import {WalletEntity} from "./entities/wallet.entity";
+import * as net from "net";
 
 @Injectable()
 export class WalletService {
 
+  private currencyNetworkName = {
+    usdt: { trc20: 'usdt.trc20', erc20: 'usdt.erc20', bep2: 'usdt.bep2', bep20: 'usdt.bep20', prc20: 'usdt.prc20', sol: 'usdt.sol' },
+    usdc: { trc20: 'usdc.trc20', erc20: 'usdc', bep20: 'usdc.bep20', prc20: 'usdc.prc20', sol: 'usdc.sol' },
+    btc: { btc: 'btc', bep20: 'btc.bep20', bep2: 'btc.bep2', ln: 'btc.ln' },
+    eth: { eth: 'eth', bep20: 'eth.bep20', bep2: 'eth.bep2' },
+    sol: { sol: 'sol' },
+    matic: { poly: 'matic.poly' },
+    bnb: { bnb: 'bnb', bep20: 'bnb.bsc', erc20: 'bnb.erc20' }
+  }
+
   constructor(
       private userService: UsersService,
       private currenciesService: CurrenciesService,
-      @InjectRepository(TransactionEntity) private transactionRepository: Repository<TransactionEntity>
+      @InjectRepository(TransactionEntity) private transactionRepository: Repository<TransactionEntity>,
+      @InjectRepository(WalletEntity) private walletRepository: Repository<WalletEntity>
   ) {}
 
   async getDepositAddress(requestParams: any) {
     const user = await this.userService.findOneByEmail(requestParams.user.email_address)
-    if (!user[requestParams.coin+'_wallet_address']) {
-      const walletAddressResult = await this.generateDepositAddress(requestParams.coin, requestParams.user.email_address)
+
+    const currency = requestParams.currency.toLocaleLowerCase()
+
+    // check if requested wallet with same network exists
+    const existingWallet = await this.walletRepository.findOneBy({ user_id: user.id, wallet_currency: currency, wallet_network: requestParams.network })
+    if (!existingWallet) {
+
+      if (!this.currencyNetworkName[currency])
+        throw new CustomException('Currency is invalid')
+
+      const depositISO = this.currencyNetworkName[currency][requestParams.network]
+
+      if (!depositISO)
+        throw new CustomException('Currency network is invalid')
+
+      const walletAddressResult = await this.generateDepositAddress(depositISO, requestParams.user.email_address)
       if (walletAddressResult.error != "ok")
         throw new CustomException("Unable to fetch deposit address")
 
-      user[requestParams.coin+'_wallet_address'] = walletAddressResult.result.address
-      await this.userService.updateUser(user)
+      let wallet = new WalletEntity();
+      wallet.user_id = user.id
+      wallet.wallet_currency = requestParams.currency
+      wallet.wallet_network = requestParams.network
+      wallet.wallet_address = walletAddressResult.result.address
+      await this.walletRepository.save(wallet)
       return walletAddressResult.result.address
     } else {
-      return user[requestParams.coin+'_wallet_address']
+      return existingWallet.wallet_address
     }
   }
 
@@ -209,12 +240,48 @@ export class WalletService {
 
   }
 
-  async fetchSwappableCurrencies() {
-    return await this.currenciesService.fetchCurrenciesName()
+  async fetchCurrencies() {
+    return await this.currenciesService.fetchCurrencies()
   }
 
   async withdraw(request) {
     const user = await this.userService.findOneByEmail(request.user.email_address)
+    if (!request.type)
+      throw new CustomException('Withdrawal type is invalid')
+
+    if (request.type == 'crypto_withdrawal') {
+      if (!request.from_currency)
+        throw new CustomException('Currency is invalid')
+
+      if (!request.amount)
+        throw new CustomException('Amount is invalid')
+
+      if (!request.to_wallet)
+        throw new CustomException('Recipient wallet is invalid')
+
+      // check for balance if greater than amount
+      //const availableAmount = user[request.cu]
+
+    }
+
+  }
+
+  async runWallet() {
+    const networkArray = [
+      { id: 100, network_name: 'Tron/TRC20', network_iso: 'trc20',  },
+      { id: 101, network_name: 'ERC20', network_iso: 'erc20' },
+      { id: 102, network_name: 'Ether', network_iso: 'eth' },
+      { id: 103, network_name: 'BSC Chain', network_iso: 'bep20' },
+      { id: 104, network_name: 'Polygon Chain', network_iso: 'poly' },
+      { id: 105, network_name: 'Polygon/MATIC', network_iso: 'prc20' },
+      { id: 106, network_name: 'BC Chain', network_iso: 'bep2' },
+      { id: 107, network_name: 'Solana', network_iso: 'sol' },
+      { id: 108, network_name: 'BNB Coin', network_iso: 'bnb' },
+      { id: 109, network_name: 'Bitcoin', network_iso: 'btc' },
+      { id: 110, network_name: 'Lightning Network', network_iso: 'ln' },
+    ]
+
+    return await this.currenciesService.createNetworks(networkArray);
 
   }
 

@@ -6,11 +6,12 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {UserEntity} from "../users/entities/user.entity";
 import {SettingsEntity} from "../settings/entities/setting.entity";
 import {CurrencyEntity} from "./entities/currency.entity";
+import {CurrencyNetworkEntity} from "./entities/currency_networks.entity";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([CurrencyEntity]),
+    TypeOrmModule.forFeature([CurrencyEntity, CurrencyNetworkEntity]),
   ],
   controllers: [CurrenciesController],
   providers: [CurrenciesService],

@@ -12,11 +12,12 @@ import {SettingsService} from "../settings/settings.service";
 import {SettingsEntity} from "../settings/entities/setting.entity";
 import {CurrenciesService} from "../currencies/currencies.service";
 import {CurrencyEntity} from "../currencies/entities/currency.entity";
+import {CurrencyNetworkEntity} from "../currencies/entities/currency_networks.entity";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([UserEntity, TransactionEntity, SettingsEntity, CurrencyEntity]),
+    TypeOrmModule.forFeature([UserEntity, TransactionEntity, SettingsEntity, CurrencyEntity, CurrencyNetworkEntity]),
   ],
   controllers: [TransactionsController],
   providers: [TransactionsService, UsersService, SettingsService, CurrenciesService],

@@ -1,19 +1,31 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCurrencyDto } from './dto/create-currency.dto';
-import { UpdateCurrencyDto } from './dto/update-currency.dto';
+import {Injectable} from '@nestjs/common';
+import {CreateCurrencyDto} from './dto/create-currency.dto';
+import {UpdateCurrencyDto} from './dto/update-currency.dto';
 import axios from "axios";
 import {InjectRepository} from "@nestjs/typeorm";
-import {SettingsEntity} from "../settings/entities/setting.entity";
-import {Repository} from "typeorm";
+import {In, Repository} from "typeorm";
 import {CurrencyEntity} from "./entities/currency.entity";
+import {CurrencyNetworkEntity} from "./entities/currency_networks.entity";
+import {raw} from "express";
 
 @Injectable()
 export class CurrenciesService {
 
   private counter: number = 0
 
+  private currencyNetworkName = {
+    usdt: { trc20: 'usdt.trc20', erc20: 'usdt.erc20', bep2: 'usdt.bep2', bep20: 'usdt.bep20', prc20: 'usdt.prc20', sol: 'usdt.sol' },
+    usdc: { trc20: 'usdc.trc20', erc20: 'usdc', bep20: 'usdc.bep20', prc20: 'usdc.prc20', sol: 'usdc.sol' },
+    btc: { btc: 'btc', bep20: 'btc.bep20', bep2: 'btc.bep2', ln: 'btc.ln' },
+    eth: { eth: 'eth', bep20: 'eth.bep20', bep2: 'eth.bep2' },
+    sol: { sol: 'sol' },
+    matic: { poly: 'matic.poly' },
+    bnb: { bnb: 'bnb', bep20: 'bnb.bsc', erc20: 'bnb.erc20' }
+  }
+
   constructor(
       @InjectRepository(CurrencyEntity) private currenciesRepository: Repository<CurrencyEntity>,
+      @InjectRepository(CurrencyNetworkEntity) private currencyNetworkRepository: Repository<CurrencyNetworkEntity>,
   ) {
   }
 
@@ -84,15 +96,39 @@ export class CurrenciesService {
 
   async fetchCurrencies(): Promise<any[]> {
     const entities = await this.currenciesRepository.find({
-      select: ["coin_name", "coin_rate"]
+      select: ["coin_name", "coin_rate", "coin_fullname", "coin_networks"]
     });
-    return entities.map(entity => ({
+
+    return await Promise.all(entities.map(async entity => ({
       coin_name: entity.coin_name,
       coin_rate: entity.coin_rate,
-    }))
+      coin_fullname: entity.coin_fullname,
+      coin_networks: await this.fetchCoinNetworks(entity.coin_networks)
+    })));
   }
 
-  async fetchCurrenciesName(): Promise<any[]> {
+  async fetchCoinNetworks(networksArray: string[]) {
+    if (!networksArray)
+      return []
+
+    const idArrays = networksArray.map(id => parseInt(id, 10));
+
+    let result: { id: number; name: string; iso: string; }[]
+
+    const currencyNetworks = await this.currencyNetworkRepository.find({
+      where: {
+        id: In(idArrays),
+      },
+      select: ["id", "network_name", "network_iso"]
+    });
+
+    return currencyNetworks.map(currencyNetwork => ({
+      name: currencyNetwork.network_name,
+      iso: currencyNetwork.network_iso,
+    }));
+  }
+
+  /*async fetchCurrenciesName(): Promise<any[]> {
     const entities = await this.currenciesRepository.find({
       select: ["coin_name", "coin_fullname"]
     });
@@ -100,7 +136,7 @@ export class CurrenciesService {
       coin_name: entity.coin_name,
       coin_fullname: entity.coin_fullname,
     }))
-  }
+  }*/
 
   async seedCurrencies() {
     const coins = [
@@ -118,6 +154,11 @@ export class CurrenciesService {
     }*/
 
     return await this.currenciesRepository.save(coins);
+  }
+
+  async createNetworks(networkArray) {
+    const networks = this.currencyNetworkRepository.create(networkArray);
+    return await this.currencyNetworkRepository.save(networks);
   }
 
   create(createCurrencyDto: CreateCurrencyDto) {

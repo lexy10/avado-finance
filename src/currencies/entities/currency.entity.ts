@@ -1,4 +1,13 @@
-import {Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
+import {
+    Column,
+    CreateDateColumn,
+    Entity, JoinTable,
+    ManyToMany,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from "typeorm";
+import {CurrencyNetworkEntity} from "./currency_networks.entity";
 
 @Entity({ name: 'currencies' })
 export class CurrencyEntity {
@@ -11,6 +20,9 @@ export class CurrencyEntity {
 
     @Column({ type: 'varchar' })
     coin_fullname: string
+
+    @Column({ type: 'simple-array', nullable: true })
+    coin_networks: string[]
 
     @Column({ type: 'float' })
     coin_rate: number

@@ -25,6 +25,7 @@ import {CurrenciesService} from "./currencies/currencies.service";
 import {CurrencyEntity} from "./currencies/entities/currency.entity";
 import {JwtModule} from "@nestjs/jwt";
 import {UsersService} from "./users/users.service";
+import {CurrencyNetworkEntity} from "./currencies/entities/currency_networks.entity";
 
 @Module({
   imports: [
@@ -42,7 +43,7 @@ import {UsersService} from "./users/users.service";
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DATABASE,
-      entities: [UserEntity, TransactionEntity, SettingsEntity, WalletEntity, CurrencyEntity, P2pEntity],
+      entities: [UserEntity, TransactionEntity, SettingsEntity, WalletEntity, CurrencyEntity, P2pEntity, CurrencyNetworkEntity],
       //entities: [__dirname + '/**/*.entity{.ts,.js}', __dirname + '/entities/*.entity{.ts,.js}'],
 
       //migrationsTableName: 'migration',
@@ -50,7 +51,7 @@ import {UsersService} from "./users/users.service";
       ssl: false,
       synchronize: true, // Set to true if you want TypeORM to synchronize the database schema automatically
     }),
-    TypeOrmModule.forFeature([UserEntity, TransactionEntity, P2pEntity, SettingsEntity, CurrencyEntity]),
+    TypeOrmModule.forFeature([UserEntity, TransactionEntity, P2pEntity, SettingsEntity, CurrencyEntity, CurrencyNetworkEntity]),
     ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,

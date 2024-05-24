@@ -5,6 +5,7 @@ import { UpdateWalletDto } from './dto/update-wallet.dto';
 import {raw, Request, Response} from "express";
 import {TransactionsService} from "../transactions/transactions.service";
 import {P2pService} from "../p2p/p2p.service";
+import {CustomException} from "../exceptions/CustomException";
 
 @Controller('wallets')
 export class WalletController {
@@ -16,6 +17,13 @@ export class WalletController {
   @Post('get-deposit-address')
   async getDepositAddress(@Req() request: Request, @Res() response: Response) {
     try {
+      if (!request.body.currency) {
+        throw new CustomException('Please select a currency')
+      }
+
+      if (!request.body.network)
+        throw new CustomException('Please select currency network')
+
       const address = await this.walletService.getDepositAddress(request.body);
       response.status(HttpStatus.OK).json({
         status: true,
@@ -23,17 +31,17 @@ export class WalletController {
         wallet_address: address,
       });
     } catch (error) {
-      response.status(HttpStatus.NOT_FOUND).json({
+      response.status(HttpStatus.BAD_REQUEST).json({
         status: false,
-        message: error.me,
+        message: error.message,
       });
     }
   }
 
   @Get('get-swappable-currencies')
-  async fetchSwappableCurrencies(@Req() request: Request, @Res() response: Response) {
+  async fetchCurrencies(@Req() request: Request, @Res() response: Response) {
     try {
-      const currencies = await this.walletService.fetchSwappableCurrencies()
+      const currencies = await this.walletService.fetchCurrencies()
       response.status(HttpStatus.OK).json({
         status: true,
         message: 'Currencies Fetched',
@@ -148,9 +156,9 @@ export class WalletController {
     }
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.walletService.findOne(+id);
+  @Get('run-wallet')
+  async findOne() {
+    return await this.walletService.runWallet();
   }
 
   @Patch(':id')

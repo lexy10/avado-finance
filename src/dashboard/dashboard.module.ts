@@ -9,11 +9,12 @@ import {SettingsEntity} from "../settings/entities/setting.entity";
 import {SettingsService} from "../settings/settings.service";
 import {CurrenciesService} from "../currencies/currencies.service";
 import {CurrencyEntity} from "../currencies/entities/currency.entity";
+import {CurrencyNetworkEntity} from "../currencies/entities/currency_networks.entity";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([UserEntity, SettingsEntity, CurrencyEntity]),
+    TypeOrmModule.forFeature([UserEntity, SettingsEntity, CurrencyEntity, CurrencyNetworkEntity]),
   ],
   controllers: [DashboardController],
   providers: [DashboardService, UsersService, SettingsService, CurrenciesService],
