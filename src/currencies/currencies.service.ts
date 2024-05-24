@@ -101,12 +101,13 @@ export class CurrenciesService {
 
   async fetchCurrencies(): Promise<any[]> {
     const entities = await this.currenciesRepository.find({
-      select: ["coin_name", "coin_rate", "coin_fullname", "coin_networks"]
+      select: ["coin_name", "coin_rate", "coin_old_rate", "coin_fullname", "coin_networks"]
     });
 
     return await Promise.all(entities.map(async entity => ({
       coin_name: entity.coin_name,
       coin_rate: entity.coin_rate,
+      coin_old_rate: entity.coin_old_rate,
       coin_fullname: entity.coin_fullname,
       coin_networks: await this.fetchCoinNetworks(entity.coin_networks)
     })));

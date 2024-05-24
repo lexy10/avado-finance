@@ -249,7 +249,7 @@ export class WalletService {
 
   async withdraw(request) {
     const user = await this.userService.findOneByEmail(request.user.email_address)
-    if (!request.type || (request.type !== 'crypto_withdrawal' && request.type !== 'p2p_withdrawal'))
+    if (!request.type || (request.type !== 'crypto_withdrawal' && request.type !== 'fiat_withdrawal'))
       throw new CustomException('Withdrawal type is invalid')
 
     if (request.type == 'crypto_withdrawal') {
@@ -313,15 +313,18 @@ export class WalletService {
 
     }
 
-    else if (request.type == 'p2p_withdrawal') {
+    else if (request.type == 'fiat_withdrawal') {
       if (!request.from_currency)
         throw new CustomException('Currency is invalid')
 
-      if (!request.bank_name || !request.account_name || !request.account_number)
-        throw new CustomException('Bank details is invalid')
-
       if (!request.amount)
         throw new CustomException('Amount is invalid')
+
+      if (parseFloat(request.amount) < 2000)
+        throw new CustomException('Minimum withdrawal amount is NGN2,000')
+
+      if (!user.bank_name || !user.account_name || !user.account_number)
+        throw new CustomException('User has not added bank details')
 
       // check for balance if greater than amount
       const availableBalance = user[request.from_currency+'_balance'];

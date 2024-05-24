@@ -64,8 +64,9 @@ export class DashboardService {
     filteredCurrencies.forEach(currency => {
       wallet[currency.coin_name] = {
           amount: formatBalance(user[currency.coin_name+'_balance'], currency.coin_name),
-          amount_in_usd: formatBalance(user[currency.coin_name+'_balance'] * currency.coin_rate, 'usd'),
-          rate: currency.coin_rate
+          amount_in_usd: formatBalance((user[currency.coin_name+'_balance'] * currency.coin_rate), 'usd'),
+          rate: currency.coin_rate,
+        ...this.formatChange(currency.coin_rate, currency.coin_old_rate)
         }
       })
 
@@ -73,6 +74,16 @@ export class DashboardService {
       balance: balance,
       wallet: wallet,
       transactions: transactions
+    };
+  }
+
+  formatChange(newRate, oldRate) {
+    console.log("NR:", newRate)
+    console.log("OR:", oldRate)
+    const percentageChange = ((newRate - oldRate) / oldRate) * 100;
+    return {
+      percentageChange: percentageChange.toFixed(2), // Formatting to 2 decimal places
+      isPositive: percentageChange >= 0 // Check if the change is positive or negative
     };
   }
 
