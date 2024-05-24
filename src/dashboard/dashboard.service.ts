@@ -11,6 +11,7 @@ import {SettingsEntity} from "../settings/entities/setting.entity";
 import {SettingsService} from "../settings/settings.service";
 import {Exception} from "handlebars";
 import {CurrenciesService} from "../currencies/currencies.service";
+import {formatBalance} from "../utils";
 
 @Injectable()
 export class DashboardService {
@@ -62,8 +63,8 @@ export class DashboardService {
 
     filteredCurrencies.forEach(currency => {
       wallet[currency.coin_name] = {
-          amount: user[currency.coin_name+'_balance'],
-          amount_in_usd: user[currency.coin_name+'_balance'] * currency.coin_rate,
+          amount: formatBalance(user[currency.coin_name+'_balance'], currency.coin_name),
+          amount_in_usd: formatBalance(user[currency.coin_name+'_balance'] * currency.coin_rate, 'usd'),
           rate: currency.coin_rate
         }
       })
