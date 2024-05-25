@@ -78,7 +78,7 @@ export class DashboardService {
           user[currency.coin_name + '_balance'] * currency.coin_rate,
           'usd',
         ),
-        rate: currency.coin_rate,
+        rate: (currency.coin_name == 'ngn' ? parseFloat((1/currency.coin_rate).toFixed(2)) : currency.coin_rate),
         ...formatChange(currency.coin_rate, currency.coin_old_rate),
       };
     });
