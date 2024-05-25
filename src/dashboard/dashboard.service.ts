@@ -50,6 +50,9 @@ export class DashboardService {
       where: { id: userId },
       relations: ['transactions'],
     });
+    if (user && user.transactions) {
+      user.transactions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()); // Assuming 'createdAt' is a Date field
+    }
     const balance = await this.formatBalance(user);
     if (!user) throw new Exception('Invalid user found');
 
