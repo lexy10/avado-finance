@@ -54,3 +54,13 @@ export function formatBalance(amount: number, currency: string): number {
             return parseFloat(amount.toFixed(2)); // Default to 2 decimal places if coin type is unknown
     }
 }
+
+export function formatChange(newRate, oldRate) {
+    console.log("NR:", newRate)
+    console.log("OR:", oldRate)
+    const percentageChange = ((newRate - oldRate) / oldRate) * 100;
+    return {
+        percentageChange: percentageChange.toFixed(2), // Formatting to 2 decimal places
+        isPositive: percentageChange >= 0 // Check if the change is positive or negative
+    };
+}

@@ -26,7 +26,9 @@ export class TransactionsService {
   }
 
   async findAll() {
-    return await this.transactionRepository.find({ relations: ['user'] });
+    return await this.transactionRepository.find({ relations: ['user'], order: {
+        id: 'DESC'
+      } });
   }
 
   async findAllByCurrency(currency: string) {

@@ -45,7 +45,7 @@ export class SettingsController {
     }
   }
 
-  @Patch('/update-profile')
+  @Post('/update-profile')
   async updateProfile(@Req() request: Request, @Res() response: Response) {
     try {
       const updatedProfile = await this.settingsService.updateProfile(request.body)

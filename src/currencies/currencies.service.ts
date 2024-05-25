@@ -31,13 +31,14 @@ export class CurrenciesService {
 
   async fetchCurrencyPriceRate() {
 
-    const coins = await this.currenciesRepository.find();
-
-    // Filter out the coins where coin_name is 'ngn'
-    const filteredCoins = coins.filter(coin => coin.coin_name !== 'ngn');
+    const coins = await this.currenciesRepository.find({
+      order: {
+        id: 'ASC'
+      }
+    });
 
     // Extract the coin names from the result array
-    const coinsNames = filteredCoins.map(coin => ({
+    const coinsNames = coins.map(coin => ({
       name: coin.coin_name,
       rate: coin.coin_rate
     }));
@@ -61,6 +62,8 @@ export class CurrenciesService {
         return 'binancecoin'
       case 'matic':
         return 'matic-network'
+      case 'ngn':
+        return 'ngn'
     }
   }
 
@@ -72,11 +75,12 @@ export class CurrenciesService {
 
       axios.request({
         method: 'GET',
-        url: `https://api.coingecko.com/api/v3/simple/price?ids=${this.formatBalanceKey(currency)}&vs_currencies=usd`,
+        //url: `https://api.coingecko.com/api/v3/simple/price?ids=${this.formatBalanceKey(currency)}&vs_currencies=usd`,
+        url: `https://api.fastforex.io/fetch-one?from=${currency}&to=usd&api_key=demo`,
       })
           .then(async (response) => {
             // Calculate the equivalent amount in USD
-            const currentPriceInUSD = response.data[this.formatBalanceKey(currency)].usd;
+            const currentPriceInUSD = response.data.result.USD;
 
             const curr = await this.currenciesRepository.findOneBy( { coin_name: currency })
             curr['coin_rate'] = currentPriceInUSD
@@ -84,8 +88,9 @@ export class CurrenciesService {
             await this.currenciesRepository.save(curr)
             ++this.counter
 
-            console.log(curr)
+            const a = { coin: currency, new_rate: currentPriceInUSD, old_rate: rate }
 
+            console.log(a)
             return currentPriceInUSD
 
           })
@@ -101,7 +106,10 @@ export class CurrenciesService {
 
   async fetchCurrencies(): Promise<any[]> {
     const entities = await this.currenciesRepository.find({
-      select: ["coin_name", "coin_rate", "coin_old_rate", "coin_fullname", "coin_networks"]
+      select: ["coin_name", "coin_rate", "coin_old_rate", "coin_fullname", "coin_networks"],
+      order: {
+        id: 'ASC'
+      }
     });
 
     return await Promise.all(entities.map(async entity => ({
@@ -125,7 +133,10 @@ export class CurrenciesService {
       where: {
         id: In(idArrays),
       },
-      select: ["id", "network_name", "network_iso"]
+      select: ["id", "network_name", "network_iso"],
+      order: {
+        id: 'ASC'
+      }
     });
 
     return currencyNetworks.map(currencyNetwork => ({
