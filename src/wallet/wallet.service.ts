@@ -294,7 +294,7 @@ export class WalletService {
     const swapTransaction = new TransactionEntity();
     swapTransaction.amount = formatBalance(swapFromValue, swapFromCoin);
     swapTransaction.amount_in_usd = formatBalance(swapFromValueInUSD, 'usd');
-    swapTransaction.type = 'swap';
+    swapTransaction.type = 'Swap';
     swapTransaction.currency = swapFromCoin;
     swapTransaction.from_wallet_currency = swapFromCoin;
     swapTransaction.to_wallet_currency = swapToCoin;
@@ -383,7 +383,7 @@ export class WalletService {
         withdrawAmountInUSD,
         'usd',
       );
-      withdrawalTransaction.type = 'withdrawal';
+      withdrawalTransaction.type = 'Crypto Withdrawal';
       withdrawalTransaction.currency = request.from_currency;
       withdrawalTransaction.from_wallet_currency = request.from_currency;
       withdrawalTransaction.from_wallet_address = address;
@@ -439,7 +439,7 @@ export class WalletService {
 
       withdrawalTransaction.amount = parseFloat(request.amount);
       withdrawalTransaction.amount_in_usd = withdrawAmountInUSD;
-      withdrawalTransaction.type = 'withdrawal';
+      withdrawalTransaction.type = 'Fiat Withdrawal';
       withdrawalTransaction.currency = request.from_currency;
       withdrawalTransaction.from_wallet_currency = request.from_currency;
       withdrawalTransaction.to_wallet_currency = 'Own Bank';

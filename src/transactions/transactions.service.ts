@@ -127,7 +127,7 @@ export class TransactionsService {
       transaction.user = user;
       transaction.amount = postData.amount;
       transaction.amount_in_usd = postData.amount_in_usd;
-      transaction.type = postData.ipnType;
+      transaction.type = 'Crypto Deposit';
       transaction.currency = postData.currency;
       transaction.to_wallet_address = postData.address;
       transaction.to_wallet_currency = postData.currency;

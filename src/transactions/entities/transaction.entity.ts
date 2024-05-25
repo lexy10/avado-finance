@@ -21,7 +21,7 @@ export class TransactionEntity {
 
   @Column({
     type: 'enum',
-    enum: ['deposit', 'withdrawal', 'swap', 'transfer', 'p2p'],
+    enum: ['Crypto Deposit', 'P2P Deposit', 'Crypto Withdrawal', 'Swap', 'Transfer', 'Fiat Withdrawal', 'deposit', 'withdrawal', 'swap', 'transfer', 'p2p'],
   })
   type: string;
 
