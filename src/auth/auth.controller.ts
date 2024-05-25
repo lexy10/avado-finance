@@ -1,28 +1,38 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode, Req, Res} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpStatus,
+  HttpCode,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
-import {raw, Request, response, Response} from "express";
-import {EmailService} from "../email/email.service";
-import {UserEntity} from "../users/entities/user.entity";
-import {UsersService} from "../users/users.service";
+import { raw, Request, response, Response } from 'express';
+import { EmailService } from '../email/email.service';
+import { UserEntity } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-      private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @Post("register")
+  @Post('register')
   async register(@Req() request: Request, @Res() response: Response) {
     try {
       const registeredUser = await this.authService.register(request.body);
       response.status(HttpStatus.OK).json({
         status: true,
-        message: "Registration Successful",
-        extras: "Verification code sent to email address",
+        message: 'Registration Successful',
+        extras: 'Verification code sent to email address',
         ...registeredUser,
-      }, )
+      });
     } catch (error) {
       response.status(HttpStatus.CONFLICT).json({
         status: false,
@@ -31,7 +41,7 @@ export class AuthController {
     }
   }
 
-  @Post("login")
+  @Post('login')
   async login(@Req() request: Request, @Res() response: Response) {
     try {
       const loggedUser = await this.authService.login(request.body);
@@ -83,10 +93,10 @@ export class AuthController {
   @Post('verify')
   async verifyAccount(@Req() request: Request, @Res() response: Response) {
     try {
-      const verified = await this.authService.verifyAccount(request.body)
+      const verified = await this.authService.verifyAccount(request.body);
       response.status(HttpStatus.OK).json({
         status: true,
-        message: "Verification Successful",
+        message: 'Verification Successful',
       });
     } catch (error) {
       response.json({
@@ -99,10 +109,12 @@ export class AuthController {
   @Post('forgot-password')
   async forgotPassword(@Req() request: Request, @Res() response: Response) {
     try {
-      const forgotPassword = await this.authService.forgotPassword(request.body)
+      const forgotPassword = await this.authService.forgotPassword(
+        request.body,
+      );
       response.status(HttpStatus.OK).json({
         status: true,
-        message: "Password reset request Successful",
+        message: 'Password reset request Successful',
       });
     } catch (e) {
       response.json({
@@ -115,10 +127,10 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(@Req() request: Request, @Res() response: Response) {
     try {
-      const resetPassword = await this.authService.resetPassword(request.body)
+      const resetPassword = await this.authService.resetPassword(request.body);
       response.status(HttpStatus.OK).json({
         status: true,
-        message: "Password reset successfully",
+        message: 'Password reset successfully',
       });
     } catch (e) {
       response.json({

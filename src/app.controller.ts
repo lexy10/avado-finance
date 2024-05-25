@@ -1,13 +1,21 @@
-import {Body, Controller, Get, HttpStatus, Post, Req, Res} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { AppService } from './app.service';
-import {EmailService} from "./email/email.service";
-import {Request, Response} from "express";
+import { EmailService } from './email/email.service';
+import { Request, Response } from 'express';
 
 @Controller()
 export class AppController {
   constructor(
-      private readonly appService: AppService,
-      private readonly emailService: EmailService,
+    private readonly appService: AppService,
+    private readonly emailService: EmailService,
   ) {}
 
   @Get()
@@ -16,8 +24,11 @@ export class AppController {
   }
 
   @Post('send-test-email')
-  async sendEmail(@Req() request: Request, @Res() response: Response): Promise<void> {
-    console.log("RRRRR: ", request.body)
+  async sendEmail(
+    @Req() request: Request,
+    @Res() response: Response,
+  ): Promise<void> {
+    console.log('RRRRR: ', request.body);
 
     /*try {
       const { recipient, body } = request.body;
@@ -36,6 +47,4 @@ export class AppController {
       });
     }*/
   }
-
-
 }

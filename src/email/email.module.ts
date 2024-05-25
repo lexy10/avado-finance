@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { EmailService } from './email.service';
-import {ConfigModule} from "@nestjs/config";
-import {MailerModule} from "@nestjs-modules/mailer";
-import {HandlebarsAdapter} from "@nestjs-modules/mailer/dist/adapters/handlebars.adapter";
+import { ConfigModule } from '@nestjs/config';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { join } from 'path';
 
 @Module({
   imports: [
-      ConfigModule.forRoot(),
+    ConfigModule.forRoot(),
     MailerModule.forRoot({
       // transport: 'smtps://user@example.com:topsecret@smtp.example.com',
       // or

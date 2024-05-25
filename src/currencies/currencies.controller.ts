@@ -1,8 +1,19 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, HttpStatus} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  Res,
+  HttpStatus,
+} from '@nestjs/common';
 import { CurrenciesService } from './currencies.service';
 import { CreateCurrencyDto } from './dto/create-currency.dto';
 import { UpdateCurrencyDto } from './dto/update-currency.dto';
-import {Request, Response} from "express";
+import { Request, Response } from 'express';
 
 @Controller('currencies')
 export class CurrenciesController {
@@ -29,7 +40,10 @@ export class CurrenciesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCurrencyDto: UpdateCurrencyDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateCurrencyDto: UpdateCurrencyDto,
+  ) {
     return this.currenciesService.update(+id, updateCurrencyDto);
   }
 

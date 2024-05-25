@@ -1,8 +1,19 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, HttpStatus} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  Res,
+  HttpStatus,
+} from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import {Request, Response} from "express";
+import { Request, Response } from 'express';
 
 @Controller('transactions')
 export class TransactionsController {
@@ -10,7 +21,7 @@ export class TransactionsController {
 
   @Get('get-p2p')
   async getP2p(@Req() request: Request, @Res() response: Response) {
-    const p2p = await this.transactionsService.getP2p()
+    const p2p = await this.transactionsService.getP2p();
   }
 
   @Get()
@@ -20,30 +31,34 @@ export class TransactionsController {
       response.status(HttpStatus.OK).json({
         status: true,
         message: 'Transactions fetched successfully',
-        transactions
-      })
+        transactions,
+      });
     } catch (error) {
       response.json({
         status: false,
         message: error.message,
-      })
+      });
     }
   }
 
   @Get(':currency')
-  async findAllByCurrency(@Param('currency') currency: string, @Res() response: Response) {
+  async findAllByCurrency(
+    @Param('currency') currency: string,
+    @Res() response: Response,
+  ) {
     try {
-      const transactions = await this.transactionsService.findAllByCurrency(currency);
+      const transactions =
+        await this.transactionsService.findAllByCurrency(currency);
       response.status(HttpStatus.OK).json({
         status: true,
         message: 'Transactions fetched successfully',
-        transactions
-      })
+        transactions,
+      });
     } catch (error) {
       response.json({
         status: false,
         message: error.message,
-      })
+      });
     }
   }
 
@@ -51,26 +66,27 @@ export class TransactionsController {
   async verifyPayment(@Req() request: Request, @Res() response: Response) {
     try {
       const verified = await this.transactionsService.verifyPayment(request);
-      return  response.status(HttpStatus.OK).send('IPN OK')
+      return response.status(HttpStatus.OK).send('IPN OK');
     } catch (error) {
       response.status(HttpStatus.BAD_REQUEST).json({
         status: false,
-        message: error.message
-      })
+        message: error.message,
+      });
     }
   }
 
   @Post('fetch-p2p-account')
   async fetchP2pAccount(@Req() request: Request, @Res() response: Response) {
     try {
-        //const account =
-    } catch (e) {
-
-    }
+      //const account =
+    } catch (e) {}
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransactionDto: UpdateTransactionDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateTransactionDto: UpdateTransactionDto,
+  ) {
     return this.transactionsService.update(+id, updateTransactionDto);
   }
 

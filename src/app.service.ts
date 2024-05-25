@@ -4,8 +4,8 @@ import { Injectable } from '@nestjs/common';
 export class AppService {
   getHello(): any {
     return {
-      app_name: "Avado Finance",
-      version: 1.0
+      app_name: 'Avado Finance',
+      version: 1.0,
     };
   }
 }

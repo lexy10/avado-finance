@@ -1,31 +1,36 @@
-import {MiddlewareConsumer, Module, NestModule, RequestMethod} from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TransactionsModule } from './transactions/transactions.module';
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {ConfigModule} from "@nestjs/config";
-import {UserEntity} from "./users/entities/user.entity";
-import {EmailService} from "./email/email.service";
-import {AuthMiddleware} from "./auth.middleware";
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
+import { UserEntity } from './users/entities/user.entity';
+import { EmailService } from './email/email.service';
+import { AuthMiddleware } from './auth.middleware';
 import { WalletModule } from './wallet/wallet.module';
-import {TransactionEntity} from "./transactions/entities/transaction.entity";
+import { TransactionEntity } from './transactions/entities/transaction.entity';
 import { P2pModule } from './p2p/p2p.module';
-import {P2pEntity} from "./p2p/entities/p2p.entity";
+import { P2pEntity } from './p2p/entities/p2p.entity';
 import { DashboardModule } from './dashboard/dashboard.module';
-import {PriceFetcherCron} from "./priceFetcher.cron";
-import {ScheduleModule} from "@nestjs/schedule";
+import { PriceFetcherCron } from './priceFetcher.cron';
+import { ScheduleModule } from '@nestjs/schedule';
 import { SettingsModule } from './settings/settings.module';
-import {SettingsEntity} from "./settings/entities/setting.entity";
-import {WalletEntity} from "./wallet/entities/wallet.entity";
-import {SettingsService} from "./settings/settings.service";
+import { SettingsEntity } from './settings/entities/setting.entity';
+import { WalletEntity } from './wallet/entities/wallet.entity';
+import { SettingsService } from './settings/settings.service';
 import { CurrenciesModule } from './currencies/currencies.module';
-import {CurrenciesService} from "./currencies/currencies.service";
-import {CurrencyEntity} from "./currencies/entities/currency.entity";
-import {JwtModule} from "@nestjs/jwt";
-import {UsersService} from "./users/users.service";
-import {CurrencyNetworkEntity} from "./currencies/entities/currency_networks.entity";
+import { CurrenciesService } from './currencies/currencies.service';
+import { CurrencyEntity } from './currencies/entities/currency.entity';
+import { JwtModule } from '@nestjs/jwt';
+import { UsersService } from './users/users.service';
+import { CurrencyNetworkEntity } from './currencies/entities/currency_networks.entity';
 
 @Module({
   imports: [
@@ -43,7 +48,15 @@ import {CurrencyNetworkEntity} from "./currencies/entities/currency_networks.ent
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DATABASE,
-      entities: [UserEntity, TransactionEntity, SettingsEntity, WalletEntity, CurrencyEntity, P2pEntity, CurrencyNetworkEntity],
+      entities: [
+        UserEntity,
+        TransactionEntity,
+        SettingsEntity,
+        WalletEntity,
+        CurrencyEntity,
+        P2pEntity,
+        CurrencyNetworkEntity,
+      ],
       //entities: [__dirname + '/**/*.entity{.ts,.js}', __dirname + '/entities/*.entity{.ts,.js}'],
 
       //migrationsTableName: 'migration',
@@ -51,7 +64,14 @@ import {CurrencyNetworkEntity} from "./currencies/entities/currency_networks.ent
       ssl: false,
       synchronize: true, // Set to true if you want TypeORM to synchronize the database schema automatically
     }),
-    TypeOrmModule.forFeature([UserEntity, TransactionEntity, P2pEntity, SettingsEntity, CurrencyEntity, CurrencyNetworkEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      TransactionEntity,
+      P2pEntity,
+      SettingsEntity,
+      CurrencyEntity,
+      CurrencyNetworkEntity,
+    ]),
     ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
@@ -63,13 +83,28 @@ import {CurrencyNetworkEntity} from "./currencies/entities/currency_networks.ent
     CurrenciesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, EmailService, SettingsService, CurrenciesService, PriceFetcherCron, UsersService],
+  providers: [
+    AppService,
+    EmailService,
+    SettingsService,
+    CurrenciesService,
+    PriceFetcherCron,
+    UsersService,
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // Apply AuthMiddleware to the routes you want to protect
     consumer
-        .apply(AuthMiddleware)
-        .forRoutes('/transactions*', '/users*', '/wallets*', '/p2p*', '/dashboard*', '/auth/verify', '/settings*');
+      .apply(AuthMiddleware)
+      .forRoutes(
+        '/transactions*',
+        '/users*',
+        '/wallets*',
+        '/p2p*',
+        '/dashboard*',
+        '/auth/verify',
+        '/settings*',
+      );
   }
 }

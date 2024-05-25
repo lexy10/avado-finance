@@ -1,8 +1,19 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, HttpStatus} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  Res,
+  HttpStatus,
+} from '@nestjs/common';
 import { P2pService } from './p2p.service';
 import { CreateP2pDto } from './dto/create-p2p.dto';
 import { UpdateP2pDto } from './dto/update-p2p.dto';
-import {Request, Response} from "express";
+import { Request, Response } from 'express';
 
 @Controller('p2p')
 export class P2pController {
@@ -11,16 +22,16 @@ export class P2pController {
   @Get()
   async loadAccounts(@Req() request: Request, @Res() response: Response) {
     try {
-      const accounts = await this.p2pService.loadAccounts()
+      const accounts = await this.p2pService.loadAccounts();
       response.status(HttpStatus.OK).json({
         status: true,
-        message: "Accounts loaded successfully"
-      })
+        message: 'Accounts loaded successfully',
+      });
     } catch (error) {
       response.status(HttpStatus.BAD_REQUEST).json({
         status: false,
-        message: error.message
-      })
+        message: error.message,
+      });
     }
   }
 
