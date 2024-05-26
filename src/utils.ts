@@ -35,25 +35,33 @@ export function generateIdWithTime(): string {
   return timestamp + randomString;
 }
 
-export function formatBalance(amount: number, currency: string): number {
+export function formatBalance(amount: number, currency: string): any {
   switch (currency) {
     case 'btc': // Bitcoin
-      return parseFloat(amount.toFixed(8)); // 8 decimal places
+      return formatNumber(amount, 8); // 8 decimal places
     case 'usdt': // Tether
     case 'usdc': // USD Coin
     case 'usd': // USD Coin
-      return parseFloat(amount.toFixed(2)); // 2 decimal places
+    case 'ngn': // NGN Fiat
+      return formatNumber(amount, 2); // 2 decimal places
     case 'eth': // Ethereum
-      return parseFloat(amount.toFixed(8)); // 18 decimal places
+      return formatNumber(amount,8); // 18 decimal places
     case 'sol': // Solana
-      return parseFloat(amount.toFixed(9)); // 9 decimal places
+      return formatNumber(amount, 9); // 9 decimal places
     case 'matic': // Polygon (MATIC)
-      return parseFloat(amount.toFixed(8)); // 18 decimal places
+      return formatNumber(amount,8); // 18 decimal places
     case 'bnb': // Binance Coin
-      return parseFloat(amount.toFixed(8)); // 8 decimal places
+      return formatNumber(amount, 8); // 8 decimal places
     default:
-      return parseFloat(amount.toFixed(2)); // Default to 2 decimal places if coin type is unknown
+      return formatNumber(amount, 2); // Default to 2 decimal places if coin type is unknown
   }
+}
+
+function formatNumber(num, currency) {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: currency,
+  }).format(num);
 }
 
 export function formatChange(newRate, oldRate) {

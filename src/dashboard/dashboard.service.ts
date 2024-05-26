@@ -39,7 +39,7 @@ export class DashboardService {
     //overallBalance += user.usd_balance
     //overallBalance += (user.ngn_balance / 1400)
 
-    return overallBalance.toFixed(2);
+    return formatBalance(overallBalance, 'usd');
   }
 
   async home(request: any): Promise<any> {
@@ -71,6 +71,17 @@ export class DashboardService {
         currency.coin_name === 'ngn',
     );
 
+    const filteredtransactions = transactions.map(transaction => ({
+      id: transaction.id,
+      amount: formatBalance(transaction.amount, transaction.currency),
+      amount_in_usd: formatBalance(transaction.amount_in_usd, 'usd'),
+      currency: transaction.currency,
+      type: transaction.type,
+      status: transaction.status,
+      transaction_status: transaction.transaction_status,
+      createdAt: transaction.createdAt
+    }));
+
     filteredCurrencies.forEach((currency) => {
       wallet[currency.coin_name] = {
         amount: formatBalance(
@@ -81,7 +92,7 @@ export class DashboardService {
           user[currency.coin_name + '_balance'] * currency.coin_rate,
           'usd',
         ),
-        rate: (currency.coin_name == 'ngn' ? parseFloat((1/currency.coin_rate).toFixed(2)) : currency.coin_rate),
+        rate: (currency.coin_name == 'ngn' ? formatBalance((1/currency.coin_rate), currency.coin_name) : formatBalance(currency.coin_rate, currency.coin_name)),
         ...formatChange(currency.coin_rate, currency.coin_old_rate),
       };
     });
@@ -89,7 +100,7 @@ export class DashboardService {
     return {
       balance: balance,
       wallet: wallet,
-      transactions: transactions,
+      transactions: filteredtransactions,
     };
   }
 
