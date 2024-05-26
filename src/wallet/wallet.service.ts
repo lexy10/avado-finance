@@ -276,24 +276,18 @@ export class WalletService {
     // decrement balance
     user[swapFromCoin + '_balance'] -= swapFromValue;
 
-    user[swapFromCoin + '_balance'] = formatBalance(
-      user[swapFromCoin + '_balance'],
-      swapFromCoin,
-    );
+    //user[swapFromCoin + '_balance'] = formatBalance(user[swapFromCoin + '_balance'], swapFromCoin,);
 
     // increment balance
     user[swapToCoin + '_balance'] += swappedAmount;
-    user[swapToCoin + '_balance'] = formatBalance(
-      user[swapToCoin + '_balance'],
-      swapToCoin,
-    );
+    //user[swapToCoin + '_balance'] = formatBalance(user[swapToCoin + '_balance'], swapToCoin,);
 
     const userValue = await this.userService.updateUser(user);
 
     // create transaction
     const swapTransaction = new TransactionEntity();
-    swapTransaction.amount = formatBalance(swapFromValue, swapFromCoin);
-    swapTransaction.amount_in_usd = formatBalance(swapFromValueInUSD, 'usd');
+    swapTransaction.amount = swapFromValue;
+    swapTransaction.amount_in_usd = swapFromValueInUSD;
     swapTransaction.type = 'Swap';
     swapTransaction.currency = swapFromCoin;
     swapTransaction.from_wallet_currency = swapFromCoin;
@@ -358,10 +352,7 @@ export class WalletService {
       user[request.from_currency + '_balance'] =
         parseFloat(availableBalance) - parseFloat(request.amount);
 
-      user[request.from_currency + '_balance'] = formatBalance(
-        user[request.from_currency + '_balance'],
-        request.from_currency,
-      );
+      //user[request.from_currency + '_balance'] = formatBalance(user[request.from_currency + '_balance'],request.from_currency,);
 
       await this.userService.updateUser(user);
 
@@ -375,14 +366,8 @@ export class WalletService {
       // create transaction
       const withdrawalTransaction = new TransactionEntity();
 
-      withdrawalTransaction.amount = formatBalance(
-        request.amount,
-        request.from_currency,
-      );
-      withdrawalTransaction.amount_in_usd = formatBalance(
-        withdrawAmountInUSD,
-        'usd',
-      );
+      withdrawalTransaction.amount = parseFloat(request.amount);
+      withdrawalTransaction.amount_in_usd = withdrawAmountInUSD;
       withdrawalTransaction.type = 'Crypto Withdrawal';
       withdrawalTransaction.currency = request.from_currency;
       withdrawalTransaction.from_wallet_currency = request.from_currency;
@@ -427,10 +412,10 @@ export class WalletService {
       user[request.from_currency + '_balance'] =
         parseFloat(availableBalance) - parseFloat(request.amount);
 
-      user[request.from_currency + '_balance'] = formatBalance(
+      /*user[request.from_currency + '_balance'] = formatBalance(
         user[request.from_currency + '_balance'],
         request.from_currency,
-      );
+      );*/
 
       await this.userService.updateUser(user);
 

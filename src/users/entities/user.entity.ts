@@ -133,7 +133,7 @@ export class UserEntity {
 
   @Column({
     type: 'enum',
-    enum: ['unverified', 'pending', 'verified'],
+    enum: ['unverified', 'pending', 'verified', 'failed'],
     default: 'unverified',
   })
   verification_status: string;

@@ -128,7 +128,7 @@ export class P2pService {
 
     const transaction = new TransactionEntity();
     transaction.amount = request.amount;
-    transaction.amount_in_usd = formatBalance(P2PValueInUSD, 'ngn');
+    transaction.amount_in_usd = P2PValueInUSD;
     transaction.type = 'P2P Deposit';
     transaction.currency = 'ngn';
     transaction.to_wallet_address = account.id;

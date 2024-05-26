@@ -91,7 +91,6 @@ export class SettingsService {
   }
 
   async getReferrals(request: any) {
-    console.log('got here with: ', request);
     const user = await this.userService.findOneByEmail(
       request.user.email_address,
     );
