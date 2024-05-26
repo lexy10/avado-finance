@@ -213,7 +213,7 @@ export class WalletService {
     const fee = 0;
 
     return {
-      amount: formatBalance(swappedAmount, swapFromCoin),
+      amount: swappedAmount,
       fee: fee,
     };
   }
