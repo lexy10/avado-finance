@@ -6,15 +6,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { P2pEntity } from './entities/p2p.entity';
 import { LessThan, Repository } from 'typeorm';
 import { TransactionEntity } from '../transactions/entities/transaction.entity';
-import { generateIdWithTime, generateTransactionHash } from '../utils';
+import {formatBalance, generateIdWithTime, generateTransactionHash} from '../utils';
 import { UsersService } from '../users/users.service';
 import { TransactionsService } from '../transactions/transactions.service';
+import {CurrenciesService} from "../currencies/currencies.service";
 
 @Injectable()
 export class P2pService {
   constructor(
     private userService: UsersService,
     private transactionService: TransactionsService,
+    private currenciesService: CurrenciesService,
     @InjectRepository(P2pEntity) private p2pRepository: Repository<P2pEntity>,
   ) {}
   create(createP2pDto: CreateP2pDto) {
@@ -117,9 +119,16 @@ export class P2pService {
       throw new CustomException('Bank details is not valid');
     }
 
+    const coins = await this.currenciesService.fetchCurrencies();
+    const coinEntity = coins.find(
+        (entity) => entity.coin_name === 'ngn',
+    );
+
+    const P2PValueInUSD = parseFloat(request.amount) * coinEntity.coin_rate;
+
     const transaction = new TransactionEntity();
     transaction.amount = request.amount;
-    transaction.amount_in_usd = parseFloat(request.amount) * 1400;
+    transaction.amount_in_usd = formatBalance(P2PValueInUSD, 'ngn');
     transaction.type = 'P2P Deposit';
     transaction.currency = 'ngn';
     transaction.to_wallet_address = account.id;

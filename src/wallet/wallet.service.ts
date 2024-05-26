@@ -160,7 +160,7 @@ export class WalletService {
         // Construct the object for the current wallet
         result[wallet] = {
           [`address`]: userAccount[`${wallet}_wallet_address`],
-          [`balance`]: userAccount[`${wallet}_balance`],
+          [`balance`]: formatBalance(userAccount[`${wallet}_balance`], wallet),
         };
       }
     });

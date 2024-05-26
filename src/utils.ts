@@ -42,7 +42,7 @@ export function formatBalance(amount: number, currency: string): number {
     case 'usdt': // Tether
     case 'usdc': // USD Coin
     case 'usd': // USD Coin
-      return parseFloat(amount.toFixed(3)); // 2 decimal places
+      return parseFloat(amount.toFixed(2)); // 2 decimal places
     case 'eth': // Ethereum
       return parseFloat(amount.toFixed(8)); // 18 decimal places
     case 'sol': // Solana
