@@ -174,6 +174,18 @@ export class AuthService {
     return await this.emailService.sendUserResetPassword(user1, url);
   }
 
+  async verifyResetPasswordToken(request) {
+    const user = await this.usersService.findPasswordResetValidity(
+        request.email_address,
+        request.token,
+    );
+    if (!request.email_address || !request.token || !user)
+      throw new CustomException('Invalid reset password link');
+
+
+    return user;
+  }
+
   async resetPassword(request) {
     const user = await this.usersService.findPasswordResetValidity(
       request.email_address,

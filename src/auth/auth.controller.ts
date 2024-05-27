@@ -124,6 +124,24 @@ export class AuthController {
     }
   }
 
+  @Post('verify-reset-password-token')
+  async verifyResetPasswordToken(@Req() request: Request, @Res() response: Response) {
+    try {
+      const verifyResetPasswordToken = await this.authService.verifyResetPasswordToken(
+          request.body,
+      );
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Token Valid',
+      });
+    } catch (e) {
+      response.json({
+        status: false,
+        message: e.message,
+      });
+    }
+  }
+
   @Post('reset-password')
   async resetPassword(@Req() request: Request, @Res() response: Response) {
     try {
