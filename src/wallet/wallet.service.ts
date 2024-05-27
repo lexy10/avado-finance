@@ -282,13 +282,15 @@ export class WalletService {
     user[swapToCoin + '_balance'] += swappedAmount;
     //user[swapToCoin + '_balance'] = formatBalance(user[swapToCoin + '_balance'], swapToCoin,);
 
+    const swapToValueInUSD = swappedAmount * toCoinEntity.coin_rate;
+
     const userValue = await this.userService.updateUser(user);
 
-    // create transaction
+    // create transaction for from
     const swapTransaction = new TransactionEntity();
     swapTransaction.amount = swapFromValue;
     swapTransaction.amount_in_usd = swapFromValueInUSD;
-    swapTransaction.type = 'Swap';
+    swapTransaction.type = `Swap To ${(swapToCoin).toUpperCase()}`;
     swapTransaction.currency = swapFromCoin;
     swapTransaction.from_wallet_currency = swapFromCoin;
     swapTransaction.to_wallet_currency = swapToCoin;
@@ -301,6 +303,24 @@ export class WalletService {
     swapTransaction.user = user;
 
     await this.transactionRepository.save(swapTransaction);
+
+    // create transaction for To
+    const swapTransaction2 = new TransactionEntity();
+    swapTransaction2.amount = swappedAmount;
+    swapTransaction2.amount_in_usd = swapToValueInUSD;
+    swapTransaction2.type = `Swap From ${(swapFromCoin).toUpperCase()}`;;
+    swapTransaction2.currency = swapToCoin;
+    swapTransaction2.from_wallet_currency = swapFromCoin;
+    swapTransaction2.to_wallet_currency = swapToCoin;
+    swapTransaction2.transaction_network = swapNetwork;
+    swapTransaction2.transaction_status = 'success';
+    swapTransaction2.transaction_hash = generateTransactionHash();
+    swapTransaction2.transaction_id = generateIdWithTime();
+    swapTransaction2.transaction_fee = 0;
+    swapTransaction2.transaction_fee_in_usd = 0;
+    swapTransaction2.user = user;
+
+    await this.transactionRepository.save(swapTransaction2);
 
     return userValue.wallets();
   }

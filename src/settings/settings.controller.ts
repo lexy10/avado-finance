@@ -215,7 +215,7 @@ export class SettingsController {
         throw new BadRequestException('Image must be in base64 format');
 
       const submittedVerification =
-        await this.settingsService.getVerificationStatus(requestBody);
+        await this.settingsService.submitVerification(requestBody);
       response.status(HttpStatus.OK).json({
         status: true,
         message: 'Verification submitted successfully',

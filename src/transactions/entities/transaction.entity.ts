@@ -20,8 +20,9 @@ export class TransactionEntity {
   amount_in_usd: number;
 
   @Column({
-    type: 'enum',
-    enum: ['Crypto Deposit', 'P2P Deposit', 'Crypto Withdrawal', 'Swap', 'Transfer', 'Fiat Withdrawal', 'deposit', 'withdrawal', 'swap', 'transfer', 'p2p'],
+    type: 'varchar',
+    nullable: true
+    //enum: ['Crypto Deposit', 'P2P Deposit', 'Crypto Withdrawal', 'Swap', 'Transfer', 'Fiat Withdrawal', 'deposit', 'withdrawal', 'swap', 'transfer', 'p2p'],
   })
   type: string;
 
