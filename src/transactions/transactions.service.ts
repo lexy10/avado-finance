@@ -59,7 +59,7 @@ export class TransactionsService {
     });
   }
 
-  async findRootKeyByNetworkName(networkName) {
+  findRootKeyByNetworkName(networkName) {
     networkName = networkName.toLocaleLowerCase()
     for (const rootKey in this.walletService.currencyNetworkName) {
       const networks = this.walletService.currencyNetworkName[rootKey];
@@ -83,8 +83,8 @@ export class TransactionsService {
     const cp_merchant_id = 'bc3bd01e0692865f07db85a03f3fe47f'; // Fill in with your CoinPayments merchant ID
     const cp_ipn_secret = 'avadofinsec'; // Fill in with your CoinPayments IPN secret
 
-    const ipnMode = request.body.ipn_mode;
-    if (!ipnMode || ipnMode !== 'hmac') {
+    const ipnMode = (request.body.ipn_mode || '').trim().toLowerCase();
+    if (!ipnMode || ipnMode != 'hmac') {
       //return errorAndDie('IPN Mode is not HMAC');
       console.log('IPN Mode is not HMAC');
       throw new CustomException('IPN Mode is not HMAC');
@@ -97,8 +97,8 @@ export class TransactionsService {
       throw new CustomException('No HMAC signature sent.');
     }
 
-    const merchant = request.body.merchant
-    if (!merchant || merchant !== cp_merchant_id) {
+    const merchant = (request.body.merchant || '').trim();
+    if (!merchant || merchant != cp_merchant_id) {
       //return errorAndDie('IPN Mode is not HMAC');
       throw new CustomException('Merchant Invalid');
     }
@@ -106,7 +106,10 @@ export class TransactionsService {
     const requestBody = request.body;
     //const clonedRequestBody = { ...requestBody }; // Shallow copy of request.body
     //delete clonedRequestBody.user;
-    const requestPayload = qs.stringify(requestBody);
+    let requestPayload = qs.stringify(requestBody, {
+      encode: true,
+      format: 'RFC1738', // This format preserves '+' characters
+    });
     const calculatedHmac = crypto
       .createHmac('sha512', cp_ipn_secret)
       .update(requestPayload)
@@ -117,12 +120,15 @@ export class TransactionsService {
       throw new CustomException('HMAC signature does not match');
     }
 
-    const userAccount = this.walletService.findUserByAddress(
+    const userAccount = await this.walletService.findUserByAddress(
       requestBody.address,
     );
 
+    //console.log(userAccount)
+
     if (!userAccount)
-      throw new CustomException('User with address not found');
+      throw new NotFoundException('User with address not found');
+
 
     // IPN Signature verified, process IPN data
     const postData = {
@@ -136,8 +142,7 @@ export class TransactionsService {
       confirms: requestBody.confirms,
       amount: parseFloat(requestBody.amount),
       amount_in_usd: parseFloat(requestBody.fiat_amount),
-      fee: parseFloat(requestBody.fee),
-      fee_in_usd: parseFloat(requestBody.fiat_fee),
+      fullData: requestBody
     };
 
     // Example: Check if payment status indicates success
@@ -182,7 +187,7 @@ export class TransactionsService {
       transaction.transaction_confirmations = postData.confirms;
       transaction.transaction_fee = postData.fee;
       transaction.transaction_fee_in_usd = postData.fee_in_usd;
-      transaction.post_data = qs.stringify(postData);
+      transaction.post_data = qs.stringify(postData.fullData);
 
       // increment user balance
       if (postData.status == '100' || postData.status == '2') {
@@ -224,6 +229,8 @@ export class TransactionsService {
   }
 
   remove(id: number) {
+    'e5efebe735e50699228e2b24ad3d2e652484fe6ab8fc40980a5b6f5b68e29e5cf13e67c05e30cc51ac6c50bf58026506f2f782a437e5efba52d8db4e700f9505'
+    'e5efebe735e50699228e2b24ad3d2e652484fe6ab8fc40980a5b6f5b68e29e5cf13e67c05e30cc51ac6c50bf58026506f2f782a437e5efba52d8db4e700f9505'
     return `This action removes a #${id} transaction`;
   }
 }

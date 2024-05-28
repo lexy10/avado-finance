@@ -551,8 +551,13 @@ export class WalletService {
     return await this.currenciesService.createNetworks(networkArray);
   }
 
-  async findUserByAddress(address: string): Promise<UserEntity> {
+  async findUserByAddress(address: string): Promise<any> {
     const wallet = await this.walletRepository.findOneBy({ wallet_address: address })
+    //console.log(address)
+    //console.log(wallet)
+    if (!wallet)
+      return null
+
     return await this.userService.findOneById(wallet.user_id)
   }
 
