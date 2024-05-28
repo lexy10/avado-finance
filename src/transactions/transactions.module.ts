@@ -13,6 +13,8 @@ import { SettingsEntity } from '../settings/entities/setting.entity';
 import { CurrenciesService } from '../currencies/currencies.service';
 import { CurrencyEntity } from '../currencies/entities/currency.entity';
 import { CurrencyNetworkEntity } from '../currencies/entities/currency_networks.entity';
+import {WalletService} from "../wallet/wallet.service";
+import {WalletEntity} from "../wallet/entities/wallet.entity";
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { CurrencyNetworkEntity } from '../currencies/entities/currency_networks.
       SettingsEntity,
       CurrencyEntity,
       CurrencyNetworkEntity,
+        WalletEntity
     ]),
   ],
   controllers: [TransactionsController],
@@ -31,6 +34,7 @@ import { CurrencyNetworkEntity } from '../currencies/entities/currency_networks.
     UsersService,
     SettingsService,
     CurrenciesService,
+      WalletService
   ],
 })
 export class TransactionsModule {}

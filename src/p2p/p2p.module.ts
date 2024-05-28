@@ -13,6 +13,8 @@ import { TransactionEntity } from '../transactions/entities/transaction.entity';
 import { SettingsEntity } from '../settings/entities/setting.entity';
 import {CurrenciesService} from "../currencies/currencies.service";
 import {CurrencyNetworkEntity} from "../currencies/entities/currency_networks.entity";
+import {WalletService} from "../wallet/wallet.service";
+import {WalletEntity} from "../wallet/entities/wallet.entity";
 
 @Module({
   imports: [
@@ -23,10 +25,11 @@ import {CurrencyNetworkEntity} from "../currencies/entities/currency_networks.en
       UserEntity,
       TransactionEntity,
       SettingsEntity,
-        CurrencyNetworkEntity
+        CurrencyNetworkEntity,
+        WalletEntity
     ]),
   ],
   controllers: [P2pController],
-  providers: [P2pService, UsersService, TransactionsService, SettingsService, CurrenciesService],
+  providers: [P2pService, UsersService, TransactionsService, SettingsService, CurrenciesService, WalletService],
 })
 export class P2pModule {}

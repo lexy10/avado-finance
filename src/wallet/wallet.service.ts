@@ -1,26 +1,21 @@
-import { Injectable } from '@nestjs/common';
-import { CreateWalletDto } from './dto/create-wallet.dto';
-import { UpdateWalletDto } from './dto/update-wallet.dto';
-import { UsersService } from '../users/users.service';
-import { CustomException } from '../exceptions/CustomException';
-import { TransactionEntity } from '../transactions/entities/transaction.entity';
-import {
-  formatBalance,
-  generateIdWithTime,
-  generateTransactionHash,
-} from '../utils';
-import { CurrenciesService } from '../currencies/currencies.service';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {Injectable} from '@nestjs/common';
+import {UpdateWalletDto} from './dto/update-wallet.dto';
+import {UsersService} from '../users/users.service';
+import {CustomException} from '../exceptions/CustomException';
+import {TransactionEntity} from '../transactions/entities/transaction.entity';
+import {formatBalance, generateIdWithTime, generateTransactionHash,} from '../utils';
+import {CurrenciesService} from '../currencies/currencies.service';
+import {InjectRepository} from '@nestjs/typeorm';
+import {Repository} from 'typeorm';
 import qs from 'qs';
 import axios from 'axios';
 import crypto from 'crypto';
-import { WalletEntity } from './entities/wallet.entity';
-import * as net from 'net';
+import {WalletEntity} from './entities/wallet.entity';
+import {UserEntity} from "../users/entities/user.entity";
 
 @Injectable()
 export class WalletService {
-  private currencyNetworkName = {
+  public currencyNetworkName = {
     usdt: {
       trc20: 'usdt.trc20',
       erc20: 'usdt.erc20',
@@ -325,6 +320,84 @@ export class WalletService {
     return userValue.wallets();
   }
 
+  async swapBonus(request: any) {
+    const user = await this.userService.findOneByEmail(
+      request.user.email_address,
+    );
+    let swapAmount = request.amount;
+    const swapToCoin = request.swap_to;
+
+    const coins = await this.currenciesService.fetchCurrencies();
+    const toCoinEntity = coins.find(
+      (entity) => entity.coin_name === swapToCoin,
+    );
+
+    if (!swapToCoin)
+      throw new CustomException('No currency selected to swap to');
+
+    if (!swapAmount) throw new CustomException('No bonus value to swap');
+
+    swapAmount = parseFloat(swapAmount)
+
+    if (!toCoinEntity)
+      throw new CustomException(swapToCoin + ' not supported');
+
+    if (user.referral_bonus_balance < swapAmount)
+      throw new CustomException('Bonus Balance is lower than swap amount');
+
+    const swapValueInCoin = swapAmount / toCoinEntity.coin_rate;
+
+
+
+    // decrement bonus balance
+    user.referral_bonus_balance -= swapAmount;
+
+
+    // increment selected coin balance
+    user[swapToCoin + '_balance'] += swapValueInCoin;
+    //user[swapToCoin + '_balance'] = formatBalance(user[swapToCoin + '_balance'], swapToCoin,);
+
+    const userValue = await this.userService.updateUser(user);
+
+    // create transaction for from
+    const swapTransaction = new TransactionEntity();
+    swapTransaction.amount = swapAmount;
+    swapTransaction.amount_in_usd = swapAmount;
+    swapTransaction.type = `Swap To ${(swapToCoin).toUpperCase()}`;
+    swapTransaction.currency = 'Ref. Bonus';
+    swapTransaction.from_wallet_currency = 'bonus';
+    swapTransaction.to_wallet_currency = swapToCoin;
+    swapTransaction.transaction_network = 'usd';
+    swapTransaction.transaction_status = 'success';
+    swapTransaction.transaction_hash = generateTransactionHash();
+    swapTransaction.transaction_id = generateIdWithTime();
+    swapTransaction.transaction_fee = 0;
+    swapTransaction.transaction_fee_in_usd = 0;
+    swapTransaction.user = user;
+
+    await this.transactionRepository.save(swapTransaction);
+
+    // create transaction for To
+    const swapTransaction2 = new TransactionEntity();
+    swapTransaction2.amount = swapValueInCoin;
+    swapTransaction2.amount_in_usd = swapAmount;
+    swapTransaction2.type = `Swap From Ref. Bonus`;;
+    swapTransaction2.currency = swapToCoin;
+    swapTransaction2.from_wallet_currency = 'bonus';
+    swapTransaction2.to_wallet_currency = swapToCoin;
+    swapTransaction2.transaction_network = 'usd';
+    swapTransaction2.transaction_status = 'success';
+    swapTransaction2.transaction_hash = generateTransactionHash();
+    swapTransaction2.transaction_id = generateIdWithTime();
+    swapTransaction2.transaction_fee = 0;
+    swapTransaction2.transaction_fee_in_usd = 0;
+    swapTransaction2.user = user;
+
+    await this.transactionRepository.save(swapTransaction2);
+
+    return userValue.wallets();
+  }
+
   async fetchCurrencies() {
     return await this.currenciesService.fetchCurrencies();
   }
@@ -476,6 +549,11 @@ export class WalletService {
     ];
 
     return await this.currenciesService.createNetworks(networkArray);
+  }
+
+  async findUserByAddress(address: string): Promise<UserEntity> {
+    const wallet = await this.walletRepository.findOneBy({ wallet_address: address })
+    return await this.userService.findOneById(wallet.user_id)
   }
 
   findOne(id: number) {

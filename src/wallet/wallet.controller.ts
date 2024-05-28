@@ -150,6 +150,22 @@ export class WalletController {
     }
   }
 
+  @Post('swap-bonus')
+  async swapBonus(@Req() request: Request, @Res() response: Response) {
+    try {
+      const swapBonus = await this.walletService.swapBonus(request.body);
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Swap Successful',
+      });
+    } catch (error) {
+      response.status(HttpStatus.BAD_REQUEST).json({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+
   @Get()
   async findAll(@Req() request: Request, @Res() response: Response) {
     const wallets = await this.walletService.findAll(request.body);

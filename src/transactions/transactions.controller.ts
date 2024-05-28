@@ -96,3 +96,31 @@ export class TransactionsController {
     return this.transactionsService.remove(+id);
   }
 }
+
+
+
+/*address: 'CE5xDxUYws9p79BCHB7w3UqyDEjtBzMYtkuyTTQi7TPg'
+amount: '1.00000000'
+amounti: '100000000'
+confirms: '60'
+currency: 'USDT.SOL'
+deposit_id: 'CDIEXYYB0ZW28JMFY1L5CDWZLN'
+fee: '0.00500000'
+feei: '500000'
+fiat_amount: '0.99911440'
+fiat_amounti: '99911440'
+fiat_coin: 'USD'
+fiat_fee: '0.00499557'
+fiat_feei: '499557'
+ipn_id: 'c974250a0b6f8a5c7eabde53c8f6d62f'
+ipn_mode: 'hmac'
+ipn_type: 'deposit'
+ipn_version: '1.0'
+merchant: 'bc3bd01e0692865f07db85a03f3fe47f'
+status: '100'
+status_text : 'Deposit confirmed'
+txn_id: '3zEzaf7wijBLq3SgbsNoVY9P7vtkr4SLYy1J9HwwpkdseP8HE6Jz5VB98cvu6X2FUsxwrEeMSsx9dwr41H4wpZz3'*/
+
+
+/*address=CE5xDxUYws9p79BCHB7w3UqyDEjtBzMYtkuyTTQi7TPg&amount=1.00000000&amounti=100000000&confirms=60&currency=USDT.SOL&deposit_id=CDIEXYYB0ZW28JMFY1L5CDWZLN&fee=0.00500000&feei=500000&fiat_amount=0.99911440&fiat_amounti=99911440&fiat_coin=USD&fiat_fee=0.00499557&fiat_feei=499557&ipn_id=c974250a0b6f8a5c7eabde53c8f6d62f&ipn_mode=hmac&ipn_type=deposit&ipn_version=1.0&merchant=bc3bd01e0692865f07db85a03f3fe47f&status=100&status_text=Deposit+confirmed&txn_id=3zEzaf7wijBLq3SgbsNoVY9P7vtkr4SLYy1J9HwwpkdseP8HE6Jz5VB98cvu6X2FUsxwrEeMSsx9dwr41H4wpZz3*/
+
