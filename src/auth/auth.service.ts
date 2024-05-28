@@ -69,7 +69,7 @@ export class AuthService {
     requestParams.referral_code = await this.generateUniqueRefCode();
 
     //get referrer
-    const referrerUser = await this.usersService.getReferrer(
+    let referrerUser = await this.usersService.getReferrer(
       requestParams.referrer_code,
     );
     if (requestParams.referrer_code && referrerUser)
@@ -77,6 +77,10 @@ export class AuthService {
     else requestParams.referrer = null;
 
     const user = await this.usersService.createUser(requestParams);
+
+    // increment referrer referral Count
+    referrerUser.referral_count += 1;
+    await this.usersService.updateUser(referrerUser)
 
     const payload = {
       sub: user.email_address,

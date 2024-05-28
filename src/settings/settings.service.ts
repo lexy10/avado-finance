@@ -94,13 +94,12 @@ export class SettingsService {
     const user = await this.userService.findOneByEmail(
       request.user.email_address,
     );
-    const referralsData = await this.userService.findReferrals(user);
+    //const referralsData = await this.userService.findReferrals(user);
     return {
       referral_code: user.referral_code,
-      referral_bonus: user.referral_bonus,
-      referrals: referralsData.map((referral) => ({
-        name: referral.full_name,
-      })),
+      referral_bonus: user.referral_bonus_balance,
+      referral_total_balance: user.referral_bonus_balance,
+      referral_count: user.referral_count,
     };
   }
 

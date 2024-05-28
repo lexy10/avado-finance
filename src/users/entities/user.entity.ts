@@ -47,9 +47,6 @@ export class UserEntity {
   @Column({ type: 'float', default: 0 })
   ngn_balance: number;
 
-  /*@Column({ type: 'float', default: 0 })
-    usd_balance: number*/
-
   @Column({ type: 'float', default: 0 })
   usdt_balance: number;
 
@@ -74,8 +71,17 @@ export class UserEntity {
   @Column({ type: 'varchar', nullable: true })
   referral_code: string;
 
-  @Column({ type: 'float', nullable: true })
-  referral_bonus: number;
+  @Column({ type: 'float', nullable: true, default: 0 })
+  referral_bonus_balance: number;
+
+  @Column({ type: 'float', nullable: true, default: 0 })
+  referral_bonus_total: number;
+
+  @Column({ type: 'float', nullable: true, default: 0 })
+  referral_count: number;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  referral_bonus_start: number;
 
   @Column({ type: 'varchar', nullable: true })
   password_token: string;
@@ -85,27 +91,6 @@ export class UserEntity {
 
   @Column({ type: 'boolean', nullable: true, default: false })
   has_compensated_referrer: boolean;
-
-  @Column({ type: 'varchar', unique: true, nullable: true })
-  usdt_wallet_address: string;
-
-  @Column({ type: 'varchar', unique: true, nullable: true })
-  btc_wallet_address: string;
-
-  @Column({ type: 'varchar', unique: true, nullable: true })
-  usdc_wallet_address: string;
-
-  @Column({ type: 'varchar', unique: true, nullable: true })
-  eth_wallet_address: string;
-
-  @Column({ type: 'varchar', unique: true, nullable: true })
-  sol_wallet_address: string;
-
-  @Column({ type: 'varchar', unique: true, nullable: true })
-  bnb_wallet_address: string;
-
-  @Column({ type: 'varchar', unique: true, nullable: true })
-  matic_wallet_address: string;
 
   @Column({ type: 'boolean', default: false })
   has_received_swap_bonus: boolean;
@@ -153,31 +138,24 @@ export class UserEntity {
         balance: this.ngn_balance,
       },
       usdt: {
-        address: this.usdt_wallet_address,
         balance: this.usdt_balance,
       },
       usdc: {
-        address: this.usdc_wallet_address,
         balance: this.usdc_balance,
       },
       btc: {
-        address: this.btc_wallet_address,
         balance: this.btc_balance,
       },
       eth: {
-        address: this.eth_wallet_address,
         balance: this.eth_balance,
       },
       bnb: {
-        address: this.bnb_wallet_address,
         balance: this.bnb_balance,
       },
       sol: {
-        address: this.sol_wallet_address,
         balance: this.sol_balance,
       },
       matic: {
-        address: this.matic_wallet_address,
         balance: this.matic_balance,
       },
     };

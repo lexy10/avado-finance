@@ -44,7 +44,11 @@ export class TransactionsService {
     const cp_merchant_id = 'bc3bd01e0692865f07db85a03f3fe47f'; // Fill in with your CoinPayments merchant ID
     const cp_ipn_secret = 'avadofinsec'; // Fill in with your CoinPayments IPN secret
 
-    const ipnMode = request.body.ipn_mode;
+    let transaction = new TransactionEntity();
+    transaction.post_data = qs.stringify(request.body);
+    return await this.createTransaction(transaction)
+
+    /*const ipnMode = request.body.ipn_mode;
     if (!ipnMode || ipnMode !== 'hmac') {
       //return errorAndDie('IPN Mode is not HMAC');
       console.log('IPN Mode is not HMAC');
@@ -110,7 +114,7 @@ export class TransactionsService {
       // Payment is pending
       // Handle pending payment
       return await this.createOrUpdateTransaction(postData);
-    }
+    }*/
   }
 
   async createOrUpdateTransaction(postData: any): Promise<TransactionEntity> {
