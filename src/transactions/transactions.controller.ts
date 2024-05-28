@@ -75,6 +75,7 @@ export class TransactionsController {
     }
   }
 
+
   @Post('fetch-p2p-account')
   async fetchP2pAccount(@Req() request: Request, @Res() response: Response) {
     try {
