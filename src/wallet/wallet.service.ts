@@ -12,6 +12,7 @@ import axios from 'axios';
 import crypto from 'crypto';
 import {WalletEntity} from './entities/wallet.entity';
 import {UserEntity} from "../users/entities/user.entity";
+import now = jest.now;
 
 @Injectable()
 export class WalletService {
@@ -37,6 +38,8 @@ export class WalletService {
     matic: { poly: 'matic.poly' },
     bnb: { bnb: 'bnb', bep20: 'bnb.bsc', erc20: 'bnb.erc20' },
   };
+  private withdrawFeeUSD = 1
+  private swapFeeUSD = 0.5
 
   constructor(
     private userService: UsersService,
@@ -199,17 +202,18 @@ export class WalletService {
     if (user[swapFromCoin + '_balance'] < swapFromValue)
       throw new CustomException('Balance is lower than swap amount');
 
-    // convert from amount to usd
-    const swappedAmount =
-      (parseFloat(fromCoinEntity.coin_rate) /
-        parseFloat(toCoinEntity.coin_rate)) *
-      parseFloat(swapFromValue);
+    const swapAmount = parseFloat(swapFromValue)
+    const swapFee = this.swapFeeUSD / parseFloat(fromCoinEntity.coin_rate)
 
-    const fee = 0;
+    const swapAmountPlusFee = swapAmount + swapFee
+
+    // convert from amount to usd
+    const swappedAmount = (parseFloat(fromCoinEntity.coin_rate) / parseFloat(toCoinEntity.coin_rate)) * swapAmount;
+
 
     return {
       amount: swappedAmount,
-      fee: fee,
+      fee: swapFee,
     };
   }
 
@@ -247,22 +251,28 @@ export class WalletService {
     if (swapFromCoin == swapToCoin)
       throw new CustomException("You can't swap to same coin");
 
-    if (user[swapFromCoin + '_balance'] < swapFromValue)
+
+    const swapAmount = parseFloat(swapFromValue)
+    const swapFee = this.swapFeeUSD / parseFloat(fromCoinEntity.coin_rate)
+
+    const swapAmountPlusFee = swapAmount + swapFee
+
+    if (user[swapFromCoin + '_balance'] < swapAmountPlusFee)
       throw new CustomException('Balance is lower than swap amount');
 
-    const swapFromValueInUSD = swapFromValue * fromCoinEntity.coin_rate;
+    const swapAmountInUSD = swapAmount * fromCoinEntity.coin_rate;
+    const swapFeeInUSD = swapFee * fromCoinEntity.coin_rate;
 
-    // convert from to usd
-    let swappedAmount =
-      (parseFloat(fromCoinEntity.coin_rate) /
-        parseFloat(toCoinEntity.coin_rate)) *
-      parseFloat(swapFromValue);
+    const swapAmountPlusFeeInUSD = swapAmountInUSD + swapFeeInUSD
+
+    // convert from to tocoin
+    let swappedAmount = (parseFloat(fromCoinEntity.coin_rate) / parseFloat(toCoinEntity.coin_rate)) * swapAmount;
 
     let referrer
     let firstimeSwapBonus = false
 
     // set swap bonus
-    if (!user.has_received_swap_bonus && swapFromValueInUSD >= 15 && swapToCoin == 'usdc') {
+    if (!user.has_received_swap_bonus && swapAmountInUSD >= 15 && swapToCoin == 'usdc') {
       // give user bonus
       swappedAmount += 10;
       user.has_received_swap_bonus = true;
@@ -272,16 +282,17 @@ export class WalletService {
       referrer.referral_bonus_balance += 2
       referrer.referral_bonus_total += 2
       referrer.referral_count += 1
+      referrer.swap_bonus_receive_date = new Date();
 
       firstimeSwapBonus = true
     }
 
-    // decrement balance
-    user[swapFromCoin + '_balance'] -= swapFromValue;
+    // decrement from balance
+    user[swapFromCoin + '_balance'] -= swapAmountPlusFee;
 
     //user[swapFromCoin + '_balance'] = formatBalance(user[swapFromCoin + '_balance'], swapFromCoin,);
 
-    // increment balance
+    // increment to balance
     user[swapToCoin + '_balance'] += swappedAmount;
     //user[swapToCoin + '_balance'] = formatBalance(user[swapToCoin + '_balance'], swapToCoin,);
 
@@ -294,8 +305,8 @@ export class WalletService {
 
     // create transaction for from
     const swapTransaction = new TransactionEntity();
-    swapTransaction.amount = swapFromValue;
-    swapTransaction.amount_in_usd = swapFromValueInUSD;
+    swapTransaction.amount = swapAmount;
+    swapTransaction.amount_in_usd = swapAmountInUSD;
     swapTransaction.type = `Swap To ${(swapToCoin).toUpperCase()}`;
     swapTransaction.currency = swapFromCoin;
     swapTransaction.from_wallet_currency = swapFromCoin;
@@ -304,8 +315,8 @@ export class WalletService {
     swapTransaction.transaction_status = 'success';
     swapTransaction.transaction_hash = generateTransactionHash();
     swapTransaction.transaction_id = generateIdWithTime();
-    swapTransaction.transaction_fee = 0;
-    swapTransaction.transaction_fee_in_usd = 0;
+    swapTransaction.transaction_fee = swapFee;
+    swapTransaction.transaction_fee_in_usd = this.swapFeeUSD;
     swapTransaction.user = user;
 
     await this.transactionRepository.save(swapTransaction);
@@ -368,15 +379,32 @@ export class WalletService {
 
     if (!swapAmount) throw new CustomException('No bonus value to swap');
 
-    swapAmount = parseFloat(swapAmount)
 
-    if (swapAmount < 2)
-      throw new CustomException('Minimum Redeemable amount is USD 2.00')
+    // Check if swap_bonus_receive_date is up to 7 days old
+    if (user.swap_bonus_receive_date) {
+      const currentDate = new Date();
+      const swapBonusReceiveDate = new Date(user.swap_bonus_receive_date);
+      const diffInTime = currentDate.getTime() - swapBonusReceiveDate.getTime();
+      const diffInDays = diffInTime / (1000 * 3600 * 24);
+      if (diffInDays < 7) {
+        // The swap_bonus_receive_date is up to 7 days old
+        //console.log('The swap bonus receive date is up to 7 days old.');
+        throw new CustomException('You are not yet eligible to redeem your bonus')
+      }
+    }
+
+    swapAmount = parseFloat(swapAmount)
+    const swapFee = this.swapFeeUSD
+
+    const swapAmountPlusFee = swapAmount + swapFee
+
+    if (swapAmountPlusFee < 2)
+      throw new CustomException('Minimum Redeemable amount is USD 2.00 Including $' + this.swapFeeUSD + ' fee')
 
     if (!toCoinEntity)
       throw new CustomException(swapToCoin + ' not supported');
 
-    if (user.referral_bonus_balance < swapAmount)
+    if (user.referral_bonus_balance < swapAmountPlusFee)
       throw new CustomException('Bonus Balance is lower than the amount entered');
 
     const swapValueInCoin = swapAmount / toCoinEntity.coin_rate;
@@ -384,7 +412,7 @@ export class WalletService {
 
 
     // decrement bonus balance
-    user.referral_bonus_balance -= swapAmount;
+    user.referral_bonus_balance -= swapAmountPlusFee;
 
 
     // increment selected coin balance
@@ -405,8 +433,8 @@ export class WalletService {
     swapTransaction.transaction_status = 'success';
     swapTransaction.transaction_hash = generateTransactionHash();
     swapTransaction.transaction_id = generateIdWithTime();
-    swapTransaction.transaction_fee = 0;
-    swapTransaction.transaction_fee_in_usd = 0;
+    swapTransaction.transaction_fee = swapFee;
+    swapTransaction.transaction_fee_in_usd = this.swapFeeUSD;
     swapTransaction.user = user;
 
     await this.transactionRepository.save(swapTransaction);
@@ -415,7 +443,7 @@ export class WalletService {
     const swapTransaction2 = new TransactionEntity();
     swapTransaction2.amount = swapValueInCoin;
     swapTransaction2.amount_in_usd = swapAmount;
-    swapTransaction2.type = `Swap From Ref. Bonus`;;
+    swapTransaction2.type = `Swap From Ref. Bonus`;
     swapTransaction2.currency = swapToCoin;
     swapTransaction2.from_wallet_currency = 'bonus';
     swapTransaction2.to_wallet_currency = swapToCoin;
@@ -469,19 +497,24 @@ export class WalletService {
       // check for balance if greater than amount
       const availableBalance = user[request.from_currency + '_balance'];
 
-      if (parseFloat(request.amount) > parseFloat(availableBalance))
-        throw new CustomException('Balance is lesser than requested amount');
-
       const coins = await this.currenciesService.fetchCurrencies();
       const fromCoinEntity = coins.find(
-        (entity) => entity.coin_name === request.from_currency,
+          (entity) => entity.coin_name === request.from_currency,
       );
 
-      const withdrawAmountInUSD = request.amount * fromCoinEntity.coin_rate;
+      const withdrawAmount = parseFloat(request.amount)
+      const withdrawFee = this.withdrawFeeUSD / parseFloat(fromCoinEntity.coin_rate)
+
+      const withdrawAmountPlusFee = withdrawAmount + withdrawFee
+
+      if (withdrawAmountPlusFee > parseFloat(availableBalance))
+        throw new CustomException('Balance is lesser than requested amount');
+
+      const withdrawAmountInUSD = withdrawAmount * fromCoinEntity.coin_rate;
 
       //deduct from user balance
       user[request.from_currency + '_balance'] =
-        parseFloat(availableBalance) - parseFloat(request.amount);
+        parseFloat(availableBalance) - withdrawAmountPlusFee;
 
       //user[request.from_currency + '_balance'] = formatBalance(user[request.from_currency + '_balance'],request.from_currency,);
 
@@ -497,7 +530,7 @@ export class WalletService {
       // create transaction
       const withdrawalTransaction = new TransactionEntity();
 
-      withdrawalTransaction.amount = parseFloat(request.amount);
+      withdrawalTransaction.amount = withdrawAmount;
       withdrawalTransaction.amount_in_usd = withdrawAmountInUSD;
       withdrawalTransaction.type = 'Crypto Withdrawal';
       withdrawalTransaction.currency = request.from_currency;
@@ -508,8 +541,8 @@ export class WalletService {
       withdrawalTransaction.transaction_status = 'pending';
       withdrawalTransaction.transaction_hash = generateTransactionHash();
       withdrawalTransaction.transaction_id = generateIdWithTime();
-      withdrawalTransaction.transaction_fee = 0;
-      withdrawalTransaction.transaction_fee_in_usd = 0;
+      withdrawalTransaction.transaction_fee = withdrawFee;
+      withdrawalTransaction.transaction_fee_in_usd = this.withdrawFeeUSD;
       withdrawalTransaction.transaction_confirmations = '0';
       withdrawalTransaction.user = user;
 
@@ -529,19 +562,24 @@ export class WalletService {
       // check for balance if greater than amount
       const availableBalance = user[request.from_currency + '_balance'];
 
-      if (parseFloat(request.amount) > parseFloat(availableBalance))
-        throw new CustomException('Balance is lesser than requested amount');
-
       const coins = await this.currenciesService.fetchCurrencies();
       const fromCoinEntity = coins.find(
-        (entity) => entity.coin_name === request.from_currency,
+          (entity) => entity.coin_name === request.from_currency,
       );
 
-      const withdrawAmountInUSD = request.amount * fromCoinEntity.coin_rate;
+      const withdrawAmount = parseFloat(request.amount)
+      const withdrawFee = this.withdrawFeeUSD / parseFloat(fromCoinEntity.coin_rate)
+
+      const withdrawAmountPlusFee = withdrawAmount + withdrawFee
+
+      if (withdrawAmountPlusFee > parseFloat(availableBalance))
+        throw new CustomException('Balance is lesser than requested amount');
+
+      const withdrawAmountInUSD = withdrawAmount * fromCoinEntity.coin_rate;
 
       //deduct from user balance
       user[request.from_currency + '_balance'] =
-        parseFloat(availableBalance) - parseFloat(request.amount);
+        parseFloat(availableBalance) - withdrawAmountPlusFee;
 
       /*user[request.from_currency + '_balance'] = formatBalance(
         user[request.from_currency + '_balance'],
@@ -553,7 +591,7 @@ export class WalletService {
       // create transaction
       const withdrawalTransaction = new TransactionEntity();
 
-      withdrawalTransaction.amount = parseFloat(request.amount);
+      withdrawalTransaction.amount = withdrawAmount;
       withdrawalTransaction.amount_in_usd = withdrawAmountInUSD;
       withdrawalTransaction.type = 'Fiat Withdrawal';
       withdrawalTransaction.currency = request.from_currency;
@@ -562,8 +600,8 @@ export class WalletService {
       withdrawalTransaction.transaction_status = 'pending';
       withdrawalTransaction.transaction_hash = generateTransactionHash();
       withdrawalTransaction.transaction_id = generateIdWithTime();
-      withdrawalTransaction.transaction_fee = 0;
-      withdrawalTransaction.transaction_fee_in_usd = 0;
+      withdrawalTransaction.transaction_fee = withdrawFee;
+      withdrawalTransaction.transaction_fee_in_usd = this.withdrawFeeUSD;
       withdrawalTransaction.transaction_confirmations = '0';
       withdrawalTransaction.user = user;
 

@@ -5,12 +5,15 @@ import {UsersService} from "../users/users.service";
 import {TransactionsService} from "../transactions/transactions.service";
 import {P2pService} from "../p2p/p2p.service";
 import {CustomException} from "../exceptions/CustomException";
+import {EmailService} from "../email/email.service";
+import {formatBalance} from "../utils";
 
 @Injectable()
 export class AdminService {
 
   constructor(
       private userService: UsersService,
+      private emailService: EmailService,
       private transactionService: TransactionsService,
       private P2PService: P2pService,
   ) {
@@ -56,12 +59,25 @@ export class AdminService {
     if (!transaction)
       throw new CustomException('Payment not found')
 
+    // get the user with the payment
+    const user = await this.userService.findOneById(transaction.user)
+
+    if (!user)
+      throw new CustomException('No User attached to this payment')
+
     const verificationStatuses = ['pending', 'success', 'failed']
 
     if (!requestBody.status || !verificationStatuses.includes(requestBody.status))
       throw new CustomException('Invalid verification Status')
 
+    const amount = transaction.amount
+    user[transaction.currency + '_balance'] += amount
+
     transaction.transaction_status = requestBody.status
+
+    await this.userService.updateUser(user)
+
+    await this.emailService.sendP2PDepositConfirmation(user, formatBalance(amount, transaction.currency))
 
     return await this.transactionService.createTransaction(transaction)
   }

@@ -56,6 +56,22 @@ export class EmailService {
     });
   }
 
+  async sendP2PDepositConfirmation(user: UserEntity, amount: string) {
+    //const url = `example.com/auth/confirm?token=${token}`;
+
+    await this.mailerService.sendMail({
+      to: user.email_address,
+      // from: '"Support Team" <support@example.com>', // override default from
+      subject: 'Deposit Confirmed | Avado Finance',
+      template: './p2p-deposit-confirmed', // `.hbs` extension is appended automatically
+      context: {
+        // ✏️ filling curly brackets with content
+        name: user.full_name,
+        amount: amount,
+      },
+    });
+  }
+
   /*async sendTestEmail(recipient: string, body = 'This is a test mail'): Promise<void> {
         const options: MailgunMessageData = {
             from: 'Excited User <me@samples.mailgun.org>',
