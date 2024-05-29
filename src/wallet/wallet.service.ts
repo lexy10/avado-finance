@@ -213,7 +213,8 @@ export class WalletService {
 
     return {
       amount: swappedAmount,
-      fee: swapFee,
+      fee: swapFee.toFixed(8),
+      fee_in_usd: this.swapFeeUSD
     };
   }
 
@@ -278,12 +279,13 @@ export class WalletService {
       user.has_received_swap_bonus = true;
 
       // give referrer 2$ bonus
-      referrer = user.referrer
-      referrer.referral_bonus_balance += 2
-      referrer.referral_bonus_total += 2
-      referrer.referral_count += 1
-      referrer.swap_bonus_receive_date = new Date();
-
+      if(user.referrer) {
+        referrer = user.referrer
+        referrer.referral_bonus_balance += 2
+        referrer.referral_bonus_total += 2
+        referrer.referral_count += 1
+        referrer.swap_bonus_receive_date = new Date();
+      }
       firstimeSwapBonus = true
     }
 
