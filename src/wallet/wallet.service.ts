@@ -278,14 +278,18 @@ export class WalletService {
       swappedAmount += 10;
       user.has_received_swap_bonus = true;
 
-      // give referrer 2$ bonus
-      if(user.referrer) {
-        referrer = user.referrer
-        referrer.referral_bonus_balance += 2
-        referrer.referral_bonus_total += 2
-        referrer.referral_count += 1
-        referrer.swap_bonus_receive_date = new Date();
+      referrer = user.referrer
+      if (referrer) {
+        const ref = await this.userService.findOneById(referrer)
+        if (ref) {
+          ref.referral_bonus_balance += 2
+          ref.referral_bonus_total += 2
+          ref.referral_count += 1
+          ref.swap_bonus_receive_date = new Date();
+        }
       }
+
+      // give referrer 2$ bonus
       firstimeSwapBonus = true
     }
 
@@ -299,9 +303,12 @@ export class WalletService {
     //user[swapToCoin + '_balance'] = formatBalance(user[swapToCoin + '_balance'], swapToCoin,);
 
     const swapToValueInUSD = swappedAmount * toCoinEntity.coin_rate;
+    const swapBonusInUSD = 10 * toCoinEntity.coin_rate;
 
     // update referrer
-    if (referrer) await this.userService.updateUser(referrer)
+    if (referrer) {
+      await this.userService.updateUser(referrer)
+    }
 
     const userValue = await this.userService.updateUser(user);
 
@@ -345,7 +352,7 @@ export class WalletService {
       // create transaction for user bonus
       const swapBonus = new TransactionEntity();
       swapBonus.amount = 10;
-      swapBonus.amount_in_usd = swapToValueInUSD;
+      swapBonus.amount_in_usd = swapBonusInUSD;
       swapBonus.type = `Swap Bonus`;
       swapBonus.currency = swapToCoin;
       swapBonus.from_wallet_currency = swapFromCoin;

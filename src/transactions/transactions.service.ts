@@ -86,9 +86,10 @@ export class TransactionsService {
     return null; // Return null if the network name is not found
   }
 
-  async findAllByCurrency(currency: string) {
+  async findAllByCurrency(request: any, currency: string) {
+    const user = await this.userService.findOneByEmail(request.user.email_address)
     return await this.transactionRepository.find({
-      where: { currency: currency },
+      where: { currency: currency, user: user },
       relations: ['user'],
     });
   }

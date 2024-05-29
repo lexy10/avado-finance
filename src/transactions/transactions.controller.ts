@@ -37,13 +37,11 @@ export class TransactionsController {
   }
 
   @Get(':currency')
-  async findAllByCurrency(
-    @Param('currency') currency: string,
-    @Res() response: Response,
+  async findAllByCurrency(@Param('currency') currency: string, @Req() request: Request, @Res() response: Response,
   ) {
     try {
       const transactions =
-        await this.transactionsService.findAllByCurrency(currency);
+        await this.transactionsService.findAllByCurrency(request.body, currency);
       response.status(HttpStatus.OK).json({
         status: true,
         message: 'Transactions fetched successfully',
