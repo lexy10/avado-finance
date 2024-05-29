@@ -209,7 +209,7 @@ export class AuthService {
     return await this.usersService.updateUser(user);
   }
 
-  async resendVerificationToken(request) {
+  async resendVerificationCode(request) {
     let user = await this.usersService.findOneByEmail(request.email_address);
     if (!user) {
       throw new CustomException('User not found');

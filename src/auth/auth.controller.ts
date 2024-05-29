@@ -158,10 +158,10 @@ export class AuthController {
     }
   }
 
-  @Post('resend-verification-token')
-  async resendVerificationToken(@Req() request: Request, @Res() response: Response) {
+  @Post('resend-verification-code')
+  async resendVerificationCode(@Req() request: Request, @Res() response: Response) {
     try {
-      const resetPassword = await this.authService.resendVerificationToken(request.body);
+      const resetPassword = await this.authService.resendVerificationCode(request.body);
       response.status(HttpStatus.OK).json({
         status: true,
         message: 'Verification token sent successfully',
