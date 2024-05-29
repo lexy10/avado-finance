@@ -208,4 +208,16 @@ export class AuthService {
 
     return await this.usersService.updateUser(user);
   }
+
+  async resendVerificationToken(request) {
+    let user = await this.usersService.findOneByEmail(request.email_address);
+    if (!user) {
+      throw new CustomException('User not found');
+    }
+
+    const code = Math.floor(10000 + Math.random() * 90000).toString();
+    user.verification_code = code;
+    await this.usersService.updateUser(user)
+    return await this.emailService.sendUserConfirmation(user, code);
+  }
 }

@@ -157,4 +157,20 @@ export class AuthController {
       });
     }
   }
+
+  @Post('resend-verification-token')
+  async resendVerificationToken(@Req() request: Request, @Res() response: Response) {
+    try {
+      const resetPassword = await this.authService.resendVerificationToken(request.body);
+      response.status(HttpStatus.OK).json({
+        status: true,
+        message: 'Verification token sent successfully',
+      });
+    } catch (e) {
+      response.json({
+        status: false,
+        message: e.message,
+      });
+    }
+  }
 }

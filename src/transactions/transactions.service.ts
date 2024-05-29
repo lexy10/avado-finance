@@ -89,7 +89,7 @@ export class TransactionsService {
   async findAllByCurrency(request: any, currency: string) {
     const user = await this.userService.findOneByEmail(request.user.email_address)
     return await this.transactionRepository.find({
-      where: { currency: currency, user: user },
+      where: { user: user, currency: currency },
       relations: ['user'],
     });
   }
