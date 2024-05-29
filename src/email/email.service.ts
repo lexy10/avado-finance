@@ -38,6 +38,24 @@ export class EmailService {
     });
   }
 
+  async sendDepositConfirmation(user: UserEntity, amount: string, coin: string, address: string) {
+    //const url = `example.com/auth/confirm?token=${token}`;
+
+    await this.mailerService.sendMail({
+      to: user.email_address,
+      // from: '"Support Team" <support@example.com>', // override default from
+      subject: 'Deposit Confirmed | Avado Finance',
+      template: './deposit-confirmed', // `.hbs` extension is appended automatically
+      context: {
+        // ✏️ filling curly brackets with content
+        name: user.full_name,
+        amount: amount,
+        coin: coin,
+        address: address
+      },
+    });
+  }
+
   /*async sendTestEmail(recipient: string, body = 'This is a test mail'): Promise<void> {
         const options: MailgunMessageData = {
             from: 'Excited User <me@samples.mailgun.org>',

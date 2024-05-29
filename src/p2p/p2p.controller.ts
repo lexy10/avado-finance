@@ -34,29 +34,4 @@ export class P2pController {
       });
     }
   }
-
-  @Post()
-  create(@Body() createP2pDto: CreateP2pDto) {
-    return this.p2pService.create(createP2pDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.p2pService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.p2pService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateP2pDto: UpdateP2pDto) {
-    return this.p2pService.update(+id, updateP2pDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.p2pService.remove(+id);
-  }
 }

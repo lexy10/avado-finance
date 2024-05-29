@@ -170,7 +170,7 @@ export class AuthService {
     const user1 = await this.usersService.updateUser(user);
 
     const url =
-      'https://www.avadofinance.com/password-reset?email=' +
+      'https://avadoapp.netlify.app/forgot-password/reset?email=' +
       user1.email_address +
       '&token=' +
       token;
@@ -207,21 +207,5 @@ export class AuthService {
     user.password = bcrypt.hashSync(request.new_password, 10);
 
     return await this.usersService.updateUser(user);
-  }
-
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
   }
 }

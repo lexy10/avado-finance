@@ -19,11 +19,6 @@ import { Request, Response } from 'express';
 export class CurrenciesController {
   constructor(private readonly currenciesService: CurrenciesService) {}
 
-  @Post()
-  create(@Body() createCurrencyDto: CreateCurrencyDto) {
-    return this.currenciesService.create(createCurrencyDto);
-  }
-
   @Get()
   async findAll(@Req() request: Request, @Res() response: Response) {
     //return this.settingsService.findAll();
@@ -34,21 +29,4 @@ export class CurrenciesController {
     });*/
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.currenciesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateCurrencyDto: UpdateCurrencyDto,
-  ) {
-    return this.currenciesService.update(+id, updateCurrencyDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.currenciesService.remove(+id);
-  }
 }

@@ -19,11 +19,6 @@ import { Request, Response } from 'express';
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
-  @Get('get-p2p')
-  async getP2p(@Req() request: Request, @Res() response: Response) {
-    const p2p = await this.transactionsService.getP2p();
-  }
-
   @Get()
   async findAll(@Req() request: Request, @Res() response: Response) {
     try {
@@ -81,19 +76,6 @@ export class TransactionsController {
     try {
       //const account =
     } catch (e) {}
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateTransactionDto: UpdateTransactionDto,
-  ) {
-    return this.transactionsService.update(+id, updateTransactionDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.transactionsService.remove(+id);
   }
 }
 

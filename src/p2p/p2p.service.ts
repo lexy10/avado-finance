@@ -10,6 +10,7 @@ import {formatBalance, generateIdWithTime, generateTransactionHash} from '../uti
 import { UsersService } from '../users/users.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import {CurrenciesService} from "../currencies/currencies.service";
+import {UserEntity} from "../users/entities/user.entity";
 
 @Injectable()
 export class P2pService {
@@ -19,9 +20,6 @@ export class P2pService {
     private currenciesService: CurrenciesService,
     @InjectRepository(P2pEntity) private p2pRepository: Repository<P2pEntity>,
   ) {}
-  create(createP2pDto: CreateP2pDto) {
-    return 'This action adds a new p2p';
-  }
 
   async loadAccounts() {
     const accounts = [
@@ -98,6 +96,14 @@ export class P2pService {
     return accountsAvailableForPay[randomIndex];
   }
 
+  async getAllAccounts() {
+    return await this.p2pRepository.find()
+  }
+
+  async findOneById(account_id) {
+    return await this.p2pRepository.findOneBy({ id: account_id })
+  }
+
   async makeP2pPayment(request) {
     if (!request.amount) {
       throw new CustomException('Please enter deposit amount in NGN');
@@ -143,19 +149,7 @@ export class P2pService {
     return this.transactionService.createTransaction(transaction);
   }
 
-  findAll() {
-    return `This action returns all p2p`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} p2p`;
-  }
-
-  update(id: number, updateP2pDto: UpdateP2pDto) {
-    return `This action updates a #${id} p2p`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} p2p`;
+  async updateAccount(account: P2pEntity) {
+    return await this.p2pRepository.save(account);
   }
 }

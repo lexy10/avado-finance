@@ -24,15 +24,14 @@ export function generateTransactionHash(): string {
   return createHash('sha256').update(dataToHash).digest('hex');
 }
 
-export function generateIdWithTime(): string {
-  // Get the current timestamp in milliseconds
-  const timestamp = Date.now().toString();
-
-  // Generate a random string to add uniqueness
-  const randomString = Math.random().toString(25).substring(2);
-
-  // Concatenate timestamp and random string
-  return timestamp + randomString;
+export function generateIdWithTime(length: number = 96) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters[randomIndex];
+  }
+  return result;
 }
 
 export function formatBalance(amount: number, currency: string): any {
@@ -46,6 +45,8 @@ export function formatBalance(amount: number, currency: string): any {
       return formatNumber(amount, 2); // 2 decimal places
     case 'eth': // Ethereum
       return formatNumber(amount,8); // 18 decimal places
+    case 'usd2': // Ethereum
+      return formatNumber(amount,5); // 18 decimal places
     case 'sol': // Solana
       return formatNumber(amount, 9); // 9 decimal places
     case 'matic': // Polygon (MATIC)

@@ -14,6 +14,7 @@ import { generateIdWithTime, generateTransactionHash } from '../utils';
 import { UserEntity } from '../users/entities/user.entity';
 import { CurrenciesService } from '../currencies/currencies.service';
 import {WalletService} from "../wallet/wallet.service";
+import {EmailService} from "../email/email.service";
 
 @Injectable()
 export class TransactionsService {
@@ -44,11 +45,10 @@ export class TransactionsService {
   constructor(
     private userService: UsersService,
     private walletService: WalletService,
+    private emailService: EmailService,
     @InjectRepository(TransactionEntity)
     private transactionRepository: Repository<TransactionEntity>,
   ) {}
-
-  async getP2p() {}
 
   async findAll() {
     return await this.transactionRepository.find({
@@ -57,6 +57,20 @@ export class TransactionsService {
         id: 'DESC',
       },
     });
+  }
+
+  async allP2PTransactions() {
+    return await this.transactionRepository.find({
+      where: { type: 'P2P Deposit', currency: 'ngn' },
+      //relations: ['user'],
+      order: {
+        id: 'DESC',
+      },
+    });
+  }
+
+  async findOneById(transaction_id) {
+    return await this.transactionRepository.findOneBy({ id: transaction_id })
   }
 
   findRootKeyByNetworkName(networkName) {
@@ -150,7 +164,6 @@ export class TransactionsService {
       // Payment is complete or queued for nightly payout
       // Perform actions for successful payment
       // give bonus to user
-
       return await this.createOrUpdateTransaction(postData);
     } else if (postData.status < 0) {
       // Payment error
@@ -193,6 +206,7 @@ export class TransactionsService {
       if (postData.status == '100' || postData.status == '2') {
         user[postData.currency + '_balance'] += postData.amount
         await this.userService.updateUser(user)
+        await this.emailService.sendDepositConfirmation(user, postData.amount, postData.currency, postData.address);
       }
 
       // Set other fields with dummy data as needed
@@ -201,6 +215,7 @@ export class TransactionsService {
       if (transaction.transaction_status == 'pending' && (postData.status == '100' || postData.status == '2')) {
         user[postData.currency + '_balance'] += postData.amount
         await this.userService.updateUser(user)
+        await this.emailService.sendDepositConfirmation(user, postData.amount, postData.currency, postData.address);
       }
 
       // If transaction exists, update status
@@ -218,19 +233,5 @@ export class TransactionsService {
   async giveDepositBonus(user: UserEntity) {
     const referrer = user.referrer;
     console.log(referrer);
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} transaction`;
-  }
-
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
-  }
-
-  remove(id: number) {
-    'e5efebe735e50699228e2b24ad3d2e652484fe6ab8fc40980a5b6f5b68e29e5cf13e67c05e30cc51ac6c50bf58026506f2f782a437e5efba52d8db4e700f9505'
-    'e5efebe735e50699228e2b24ad3d2e652484fe6ab8fc40980a5b6f5b68e29e5cf13e67c05e30cc51ac6c50bf58026506f2f782a437e5efba52d8db4e700f9505'
-    return `This action removes a #${id} transaction`;
   }
 }

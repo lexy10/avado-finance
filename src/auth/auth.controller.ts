@@ -157,9 +157,4 @@ export class AuthController {
       });
     }
   }
-
-  @Delete(':id')
-  verifyEmail(@Param('id') id: string) {
-    return this.authService.remove(+id);
-  }
 }

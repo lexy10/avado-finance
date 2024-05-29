@@ -15,6 +15,7 @@ import { CurrencyEntity } from '../currencies/entities/currency.entity';
 import { CurrencyNetworkEntity } from '../currencies/entities/currency_networks.entity';
 import {WalletService} from "../wallet/wallet.service";
 import {WalletEntity} from "../wallet/entities/wallet.entity";
+import {EmailService} from "../email/email.service";
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import {WalletEntity} from "../wallet/entities/wallet.entity";
     UsersService,
     SettingsService,
     CurrenciesService,
-      WalletService
+      WalletService,
+      EmailService
   ],
 })
 export class TransactionsModule {}

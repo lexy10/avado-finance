@@ -150,7 +150,7 @@ export class WalletController {
     }
   }
 
-  @Post('swap-bonus')
+  @Post('redeem-referral-bonus')
   async swapBonus(@Req() request: Request, @Res() response: Response) {
     try {
       const swapBonus = await this.walletService.swapBonus(request.body);
@@ -186,16 +186,6 @@ export class WalletController {
 
   @Get('run-wallet')
   async findOne() {
-    return await this.walletService.runWallet();
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWalletDto: UpdateWalletDto) {
-    return this.walletService.update(+id, updateWalletDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.walletService.remove(+id);
+    //return await this.walletService.runWallet();
   }
 }

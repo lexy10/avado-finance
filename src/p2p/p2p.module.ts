@@ -15,6 +15,7 @@ import {CurrenciesService} from "../currencies/currencies.service";
 import {CurrencyNetworkEntity} from "../currencies/entities/currency_networks.entity";
 import {WalletService} from "../wallet/wallet.service";
 import {WalletEntity} from "../wallet/entities/wallet.entity";
+import {EmailService} from "../email/email.service";
 
 @Module({
   imports: [
@@ -30,6 +31,6 @@ import {WalletEntity} from "../wallet/entities/wallet.entity";
     ]),
   ],
   controllers: [P2pController],
-  providers: [P2pService, UsersService, TransactionsService, SettingsService, CurrenciesService, WalletService],
+  providers: [P2pService, UsersService, TransactionsService, SettingsService, CurrenciesService, WalletService, EmailService],
 })
 export class P2pModule {}

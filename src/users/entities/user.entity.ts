@@ -80,9 +80,6 @@ export class UserEntity {
   @Column({ type: 'float', nullable: true, default: 0 })
   referral_count: number;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  referral_bonus_start: number;
-
   @Column({ type: 'varchar', nullable: true })
   password_token: string;
 
@@ -94,6 +91,9 @@ export class UserEntity {
 
   @Column({ type: 'boolean', default: false })
   has_received_swap_bonus: boolean;
+
+  @Column({ type: 'timestamp', nullable: true })
+  swap_bonus_receive_date: Date;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

@@ -40,6 +40,7 @@ export class AuthMiddleware implements NestMiddleware {
       }
 
       const user = await this.userService.findOneByEmail(decodedToken.sub);
+
       if (!user) throw new UnauthorizedException('Invalid token');
 
       // Attach the email address to the request object for future use

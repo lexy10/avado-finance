@@ -47,10 +47,6 @@ export class UsersService {
     return await this.userRepository.findOneBy({ referral_code: referralCode });
   }
 
-  findAll() {
-    return `This action returns all users`;
-  }
-
   async findOneByEmail(email_address: string): Promise<any> {
     if (!email_address)
       throw new CustomException('Email address is undefined!');
@@ -58,6 +54,10 @@ export class UsersService {
     return await this.userRepository.findOneBy({
       email_address: email_address,
     });
+  }
+
+  async allUsers() {
+    return await this.userRepository.find();
   }
 
   async findPasswordResetValidity(
@@ -89,13 +89,5 @@ export class UsersService {
 
   async updateUser(user: UserEntity) {
     return await this.userRepository.save(user);
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 }

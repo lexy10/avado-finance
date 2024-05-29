@@ -31,6 +31,7 @@ import { CurrencyEntity } from './currencies/entities/currency.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersService } from './users/users.service';
 import { CurrencyNetworkEntity } from './currencies/entities/currency_networks.entity';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { CurrencyNetworkEntity } from './currencies/entities/currency_networks.e
     DashboardModule,
     SettingsModule,
     CurrenciesModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

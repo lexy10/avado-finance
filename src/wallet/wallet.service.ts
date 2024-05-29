@@ -258,14 +258,22 @@ export class WalletService {
         parseFloat(toCoinEntity.coin_rate)) *
       parseFloat(swapFromValue);
 
+    let referrer
+    let firstimeSwapBonus = false
+
     // set swap bonus
-    if (
-      !user.has_received_swap_bonus &&
-      swapFromValueInUSD >= 15 &&
-      swapToCoin == 'usdc'
-    ) {
+    if (!user.has_received_swap_bonus && swapFromValueInUSD >= 15 && swapToCoin == 'usdc') {
+      // give user bonus
       swappedAmount += 10;
       user.has_received_swap_bonus = true;
+
+      // give referrer 2$ bonus
+      referrer = user.referrer
+      referrer.referral_bonus_balance += 2
+      referrer.referral_bonus_total += 2
+      referrer.referral_count += 1
+
+      firstimeSwapBonus = true
     }
 
     // decrement balance
@@ -278,6 +286,9 @@ export class WalletService {
     //user[swapToCoin + '_balance'] = formatBalance(user[swapToCoin + '_balance'], swapToCoin,);
 
     const swapToValueInUSD = swappedAmount * toCoinEntity.coin_rate;
+
+    // update referrer
+    if (referrer) await this.userService.updateUser(referrer)
 
     const userValue = await this.userService.updateUser(user);
 
@@ -317,6 +328,26 @@ export class WalletService {
 
     await this.transactionRepository.save(swapTransaction2);
 
+    if (userValue.has_received_swap_bonus && firstimeSwapBonus) {
+      // create transaction for user bonus
+      const swapBonus = new TransactionEntity();
+      swapBonus.amount = 10;
+      swapBonus.amount_in_usd = swapToValueInUSD;
+      swapBonus.type = `Swap Bonus`;
+      swapBonus.currency = swapToCoin;
+      swapBonus.from_wallet_currency = swapFromCoin;
+      swapBonus.to_wallet_currency = swapToCoin;
+      swapBonus.transaction_network = swapNetwork;
+      swapBonus.transaction_status = 'success';
+      swapBonus.transaction_hash = generateTransactionHash();
+      swapBonus.transaction_id = generateIdWithTime();
+      swapBonus.transaction_fee = 0;
+      swapBonus.transaction_fee_in_usd = 0;
+      swapBonus.user = user;
+
+      await this.transactionRepository.save(swapBonus);
+    }
+
     return userValue.wallets();
   }
 
@@ -339,11 +370,14 @@ export class WalletService {
 
     swapAmount = parseFloat(swapAmount)
 
+    if (swapAmount < 2)
+      throw new CustomException('Minimum Redeemable amount is USD 2.00')
+
     if (!toCoinEntity)
       throw new CustomException(swapToCoin + ' not supported');
 
     if (user.referral_bonus_balance < swapAmount)
-      throw new CustomException('Bonus Balance is lower than swap amount');
+      throw new CustomException('Bonus Balance is lower than the amount entered');
 
     const swapValueInCoin = swapAmount / toCoinEntity.coin_rate;
 
@@ -406,6 +440,7 @@ export class WalletService {
     const user = await this.userService.findOneByEmail(
       request.user.email_address,
     );
+
     if (
       !request.type ||
       (request.type !== 'crypto_withdrawal' &&
@@ -427,6 +462,9 @@ export class WalletService {
 
       if (!request.to_wallet_address)
         throw new CustomException('Recipient wallet address is invalid');
+
+      if (user.verification_status != 'verified')
+        throw new CustomException('Please complete your KYC to enable withdrawal')
 
       // check for balance if greater than amount
       const availableBalance = user[request.from_currency + '_balance'];
@@ -559,17 +597,5 @@ export class WalletService {
       return null
 
     return await this.userService.findOneById(wallet.user_id)
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} wallet`;
-  }
-
-  update(id: number, updateWalletDto: UpdateWalletDto) {
-    return `This action updates a #${id} wallet`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} wallet`;
   }
 }

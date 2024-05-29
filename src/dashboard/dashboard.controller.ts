@@ -18,11 +18,6 @@ import { Request, Response } from 'express';
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
-  @Post()
-  create() {
-    return this.dashboardService.create();
-  }
-
   @Get('home')
   async home(@Req() request: Request, @Res() response: Response) {
     try {
@@ -38,23 +33,5 @@ export class DashboardController {
         message: error.message,
       });
     }
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.dashboardService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateDashboardDto: UpdateDashboardDto,
-  ) {
-    return this.dashboardService.update(+id, updateDashboardDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.dashboardService.remove(+id);
   }
 }

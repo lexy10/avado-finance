@@ -24,10 +24,6 @@ export class DashboardService {
     private settingsRepository: Repository<SettingsEntity>,
   ) {}
 
-  create() {
-    return 'This action adds a new dashboard';
-  }
-
   async formatBalance(user: UserEntity) {
     let overallBalance: number = 0;
     const coins = await this.currenciesService.fetchCurrencies();
@@ -74,7 +70,7 @@ export class DashboardService {
     const filteredtransactions = transactions.map(transaction => ({
       id: transaction.id,
       amount: formatBalance(transaction.amount, transaction.currency),
-      amount_in_usd: formatBalance(transaction.amount_in_usd, 'usd'),
+      amount_in_usd: formatBalance(transaction.amount_in_usd, 'usd2'),
       currency: transaction.currency,
       type: transaction.type,
       status: transaction.status,
@@ -189,17 +185,5 @@ export class DashboardService {
       console.error('Error converting balances to USD:', error);
       throw error;
     }
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} dashboard`;
-  }
-
-  update(id: number, updateDashboardDto: UpdateDashboardDto) {
-    return `This action updates a #${id} dashboard`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} dashboard`;
   }
 }
