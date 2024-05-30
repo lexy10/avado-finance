@@ -1,18 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { UsersService } from '../users/users.service';
+import {Injectable, NotFoundException} from '@nestjs/common';
+import {UsersService} from '../users/users.service';
 import qs from 'qs';
-import axios from 'axios';
 import * as crypto from 'crypto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { TransactionEntity } from './entities/transaction.entity';
-import { Repository } from 'typeorm';
-import { SettingsService } from '../settings/settings.service';
-import { Exception } from 'handlebars';
-import { CustomException } from '../exceptions/CustomException';
-import { generateIdWithTime, generateTransactionHash } from '../utils';
-import { UserEntity } from '../users/entities/user.entity';
-import { CurrenciesService } from '../currencies/currencies.service';
+import {InjectRepository} from '@nestjs/typeorm';
+import {TransactionEntity} from './entities/transaction.entity';
+import {Repository} from 'typeorm';
+import {CustomException} from '../exceptions/CustomException';
+import {formatBalance} from '../utils';
+import {UserEntity} from '../users/entities/user.entity';
 import {WalletService} from "../wallet/wallet.service";
 import {EmailService} from "../email/email.service";
 
@@ -48,6 +43,8 @@ export class TransactionsService {
     private emailService: EmailService,
     @InjectRepository(TransactionEntity)
     private transactionRepository: Repository<TransactionEntity>,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
   ) {}
 
   async findAll() {
@@ -87,11 +84,34 @@ export class TransactionsService {
   }
 
   async findAllByCurrency(request: any, currency: string) {
-    const user = await this.userService.findOneByEmail(request.user.email_address)
-    return await this.transactionRepository.find({
-      where: { user: user.id, currency: currency },
-      relations: ['user'],
+    const userTemp = await this.userService.findOneByEmail(request.user.email_address)
+    //console.log(userTemp)
+    /*return await this.transactionRepository.find({
+      where: { user: user, currency: currency },
+      //relations: ['user'],
+    });*/
+    const user = await this.userRepository.findOne({
+      where: { id: userTemp.id },
+      relations: ['transactions'],
     });
+    if (user && user.transactions) {
+      user.transactions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()); // Assuming 'createdAt' is a Date field
+    }
+
+    const transactions = user.transactions.filter(transaction => transaction.currency === currency.toLocaleLowerCase());
+
+    return  transactions.map(transaction => ({
+      id: transaction.id,
+      amount: formatBalance(transaction.amount, transaction.currency),
+      amount_in_usd: formatBalance(transaction.amount_in_usd, 'usd2'),
+      fee: formatBalance(transaction.transaction_fee, transaction.currency),
+      fee_in_usd: formatBalance(transaction.transaction_fee_in_usd, 'usd'),
+      currency: transaction.currency,
+      type: transaction.type,
+      status: transaction.transaction_status,
+      transaction_status: transaction.transaction_status,
+      createdAt: transaction.createdAt
+    }))
   }
 
   async verifyPayment(request: any) {

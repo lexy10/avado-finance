@@ -71,11 +71,11 @@ export class DashboardService {
       id: transaction.id,
       amount: formatBalance(transaction.amount, transaction.currency),
       amount_in_usd: formatBalance(transaction.amount_in_usd, 'usd2'),
-      fee: formatBalance(transaction.fee, transaction.currency),
-      fee_in_usd: formatBalance(transaction.fee_in_usd, 'usd'),
+      fee: formatBalance(transaction.transaction_fee, transaction.currency),
+      fee_in_usd: formatBalance(transaction.transaction_fee_in_usd, 'usd'),
       currency: transaction.currency,
       type: transaction.type,
-      status: transaction.status,
+      status: transaction.transaction_status,
       transaction_status: transaction.transaction_status,
       createdAt: transaction.createdAt
     }));
