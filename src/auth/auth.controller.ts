@@ -106,6 +106,7 @@ export class AuthController {
       response.status(HttpStatus.OK).json({
         status: true,
         message: 'Verification Successful',
+        ...verified
       });
     } catch (error) {
       response.json({

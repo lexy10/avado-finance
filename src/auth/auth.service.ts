@@ -160,7 +160,26 @@ export class AuthService {
     if (requestParams.code != isUserExisting.verification_code)
       throw new CustomException('Invalid verification code');
 
-    return await this.usersService.verifyUser(isUserExisting);
+    const isUpdated = await this.usersService.verifyUser(isUserExisting)
+
+    const user = await this.usersService.findOneByEmail(
+        isUserExisting.email_address,
+    );
+
+    const payload = {
+      sub: user.email_address,
+      id: user.id,
+      iss: 'AvadoAuth',
+      username: user.username,
+      email_address: user.email_address,
+      user_role: user.user_role,
+    };
+    const token = await this.jwtService.signAsync(payload);
+    return {
+      user_role: user.user_role,
+      is_verified: user.is_verified,
+      token: token,
+    };
   }
 
   async forgotPassword(request) {
