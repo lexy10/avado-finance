@@ -105,7 +105,7 @@ export class AppModule implements NestModule {
         '/wallets*',
         '/p2p*',
         '/dashboard*',
-        '/auth/verify',
+        //'/auth/verify',
         '/settings*',
       );
   }
