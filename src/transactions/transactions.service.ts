@@ -250,9 +250,4 @@ export class TransactionsService {
   async createTransaction(transaction: TransactionEntity) {
     return await this.transactionRepository.save(transaction);
   }
-
-  async giveDepositBonus(user: UserEntity) {
-    const referrer = user.referrer;
-    console.log(referrer);
-  }
 }

@@ -83,8 +83,8 @@ export class UserEntity {
   @Column({ type: 'varchar', nullable: true })
   password_token: string;
 
-  @ManyToOne((type) => UserEntity, { nullable: true }) // Many users can have the same referrer (ManyToOne)
-  referrer: UserEntity; // Refers to another UserEntity
+  @Column({ type: 'bigint', nullable: true })
+  referrerId: number; // Refers to another UserEntity
 
   @Column({ type: 'boolean', nullable: true, default: false })
   has_compensated_referrer: boolean;

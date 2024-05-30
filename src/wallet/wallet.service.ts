@@ -222,6 +222,13 @@ export class WalletService {
     const user = await this.userService.findOneByEmail(
       request.user.email_address,
     );
+
+    /*const reff = await this.userService.findOneByEmail('beem24com@gmail.com')
+    user.referrerId = reff.id
+    await this.userService.updateUser(user)
+    return*/
+
+
     const swapFromCoin = request.swap_from;
     const swapToCoin = request.swap_to;
     const swapNetwork = request.swap_network;
@@ -269,26 +276,23 @@ export class WalletService {
     // convert from to tocoin
     let swappedAmount = (parseFloat(fromCoinEntity.coin_rate) / parseFloat(toCoinEntity.coin_rate)) * swapAmount;
 
-    let referrer
     let firstimeSwapBonus = false
 
     // set swap bonus
     if (!user.has_received_swap_bonus && swapAmountInUSD >= 15 && swapToCoin == 'usdc') {
       // give user bonus
-      swappedAmount += 10;
       user.has_received_swap_bonus = true;
 
-      referrer = user.referrer
-      if (referrer) {
-        const ref = await this.userService.findOneById(referrer)
-        if (ref) {
-          ref.referral_bonus_balance += 2
-          ref.referral_bonus_total += 2
-          ref.swap_bonus_receive_date = new Date();
-        }
+      const ref = await this.userService.findOneById(user.referrerId)
+      if (ref && !user.has_compensated_referrer) {
+        ref.referral_bonus_balance += 2
+        ref.referral_bonus_total += 2
+        ref.swap_bonus_receive_date = new Date();
+        ref.has_compensated_referrer = true
+        console.log("got bonus")
+        await this.userService.updateUser(ref)
       }
 
-      // give referrer 2$ bonus
       firstimeSwapBonus = true
     }
 
@@ -298,16 +302,11 @@ export class WalletService {
     //user[swapFromCoin + '_balance'] = formatBalance(user[swapFromCoin + '_balance'], swapFromCoin,);
 
     // increment to balance
-    user[swapToCoin + '_balance'] += swappedAmount;
+    user[swapToCoin + '_balance'] += firstimeSwapBonus ? (swappedAmount + 10) : swappedAmount;
     //user[swapToCoin + '_balance'] = formatBalance(user[swapToCoin + '_balance'], swapToCoin,);
 
     const swapToValueInUSD = swappedAmount * toCoinEntity.coin_rate;
     const swapBonusInUSD = 10 * toCoinEntity.coin_rate;
-
-    // update referrer
-    if (referrer) {
-      await this.userService.updateUser(referrer)
-    }
 
     const userValue = await this.userService.updateUser(user);
 
@@ -385,7 +384,7 @@ export class WalletService {
     if (!swapToCoin)
       throw new CustomException('No currency selected to swap to');
 
-    if (!swapAmount) throw new CustomException('No bonus value to swap');
+    if (!swapAmount) throw new CustomException('No referral bonus to redeem');
 
 
     // Check if swap_bonus_receive_date is up to 7 days old

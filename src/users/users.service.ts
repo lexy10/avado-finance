@@ -18,7 +18,7 @@ export class UsersService {
       password: requestParams.password,
       verification_code: requestParams.verification_code,
       referral_code: requestParams.referral_code,
-      referrer: requestParams.referrer,
+      referrerId: requestParams.referrer,
     });
 
     await this.userRepository.save(newUser);
@@ -73,12 +73,6 @@ export class UsersService {
       email_address: email_address,
       password_token: token,
     });
-  }
-
-  async findReferrals(user: UserEntity): Promise<any> {
-    if (!user) throw new CustomException('User is undefined!');
-
-    return await this.userRepository.findBy({ referrer: user });
   }
 
   async findOneById(id: any): Promise<any> {

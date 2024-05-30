@@ -69,18 +69,23 @@ export class AuthService {
     requestParams.referral_code = await this.generateUniqueRefCode();
 
     //get referrer
-    let referrerUser = await this.usersService.getReferrer(
-      requestParams.referrer_code,
-    );
-    if (requestParams.referrer_code && referrerUser)
-      requestParams.referrer = referrerUser;
-    else requestParams.referrer = null;
+    if (requestParams.referrer_code) {
+      let referrerUser = await this.usersService.getReferrer(
+          requestParams.referrer_code,
+      );
+      if (referrerUser) {
+        requestParams.referrer = referrerUser.id;
+
+        // increment referrer referral Count
+        referrerUser.referral_count += 1;
+        await this.usersService.updateUser(referrerUser)
+      }
+      else
+        requestParams.referrer = null;
+    }
 
     const user = await this.usersService.createUser(requestParams);
 
-    // increment referrer referral Count
-    referrerUser.referral_count += 1;
-    await this.usersService.updateUser(referrerUser)
 
     const payload = {
       sub: user.email_address,
