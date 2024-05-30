@@ -147,7 +147,7 @@ export class AuthService {
 
   async verifyAccount(requestParams) {
     const isUserExisting = await this.usersService.findOneByEmail(
-      requestParams.user.email_address,
+      requestParams.email_address,
     );
 
     if (!isUserExisting) throw new NotFoundException('Invalid user account');
