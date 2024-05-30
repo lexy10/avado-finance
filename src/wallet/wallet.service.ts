@@ -284,7 +284,6 @@ export class WalletService {
         if (ref) {
           ref.referral_bonus_balance += 2
           ref.referral_bonus_total += 2
-          ref.referral_count += 1
           ref.swap_bonus_receive_date = new Date();
         }
       }
