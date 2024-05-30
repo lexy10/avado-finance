@@ -45,11 +45,20 @@ export class AuthController {
   async login(@Req() request: Request, @Res() response: Response) {
     try {
       const loggedUser = await this.authService.login(request.body);
-      response.status(HttpStatus.OK).json({
-        status: true,
-        message: 'Authentication Successful',
-        ...loggedUser,
-      });
+      if (!loggedUser.is_verified) {
+        response.status(HttpStatus.OK).json({
+          status: true,
+          message: 'Authentication Successful',
+          user_role: loggedUser.user_role,
+          is_verified: loggedUser.is_verified,
+        });
+      } else {
+        response.status(HttpStatus.OK).json({
+          status: true,
+          message: 'Authentication Successful',
+          ...loggedUser,
+        });
+      }
     } catch (error) {
       response.status(HttpStatus.UNAUTHORIZED).json({
         status: false,

@@ -93,11 +93,11 @@ export class AuthService {
 
     await this.emailService.sendUserConfirmation(user, code);
 
-    const token = await this.jwtService.signAsync(payload);
+    //const token = await this.jwtService.signAsync(payload);
     return {
       user_role: user.user_role,
       is_verified: user.is_verified,
-      token: token,
+      //token: token,
     };
   }
 
