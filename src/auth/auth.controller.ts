@@ -47,7 +47,7 @@ export class AuthController {
       const loggedUser = await this.authService.login(request.body);
       if (!loggedUser.is_verified) {
         response.status(HttpStatus.OK).json({
-          status: true,
+          status: false,
           message: 'Authentication Successful',
           user_role: loggedUser.user_role,
           is_verified: loggedUser.is_verified,
