@@ -498,7 +498,7 @@ export class WalletService {
       if (!request.to_wallet_address)
         throw new CustomException('Recipient wallet address is invalid');
 
-      if (user.verification_status != 'verified')
+      if (user.verification_status !== 'verified')
         throw new CustomException('Please complete your KYC to enable withdrawal')
 
       // check for balance if greater than amount
