@@ -10,9 +10,11 @@ import { SettingsService } from '../settings/settings.service';
 import { CurrenciesService } from '../currencies/currencies.service';
 import { CurrencyEntity } from '../currencies/entities/currency.entity';
 import { CurrencyNetworkEntity } from '../currencies/entities/currency_networks.entity';
+import {HttpModule} from "@nestjs/axios";
 
 @Module({
   imports: [
+      HttpModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forFeature([
       UserEntity,

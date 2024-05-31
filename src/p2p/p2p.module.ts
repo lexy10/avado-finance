@@ -16,9 +16,11 @@ import {CurrencyNetworkEntity} from "../currencies/entities/currency_networks.en
 import {WalletService} from "../wallet/wallet.service";
 import {WalletEntity} from "../wallet/entities/wallet.entity";
 import {EmailService} from "../email/email.service";
+import {HttpModule} from "@nestjs/axios";
 
 @Module({
   imports: [
+      HttpModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forFeature([
       CurrencyEntity,

@@ -16,9 +16,11 @@ import { P2pEntity } from '../p2p/entities/p2p.entity';
 import { WalletEntity } from './entities/wallet.entity';
 import { CurrencyNetworkEntity } from '../currencies/entities/currency_networks.entity';
 import {EmailService} from "../email/email.service";
+import {HttpModule} from "@nestjs/axios";
 
 @Module({
   imports: [
+      HttpModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forFeature([
       UserEntity,

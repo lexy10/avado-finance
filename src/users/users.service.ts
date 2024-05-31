@@ -56,8 +56,8 @@ export class UsersService {
     });
   }
 
-  async allUsers() {
-    return await this.userRepository.find();
+  async allUsersPendingVerification() {
+    return await this.userRepository.find({ where: { verification_status: 'pending' } });
   }
 
   async findPasswordResetValidity(

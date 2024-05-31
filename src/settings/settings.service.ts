@@ -8,6 +8,20 @@ import * as bcrypt from 'bcrypt';
 import axios from 'axios';
 import { UsersService } from '../users/users.service';
 import { CustomException } from '../exceptions/CustomException';
+import {HttpService} from "@nestjs/axios";
+
+
+interface MulterFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  destination: string;
+  filename: string;
+  path: string;
+  buffer: Buffer;
+}
 
 @Injectable()
 export class SettingsService {
@@ -15,6 +29,7 @@ export class SettingsService {
     @InjectRepository(SettingsEntity)
     private settingsRepository: Repository<SettingsEntity>,
     private userService: UsersService,
+    private httpService: HttpService
   ) {}
 
   async getProfile(request: any) {
@@ -161,15 +176,45 @@ export class SettingsService {
     return user.verification_status;
   }
 
-  async submitVerification(request: any) {
+  async submitVerification(files: MulterFile[], request: any) {
     const user = await this.userService.findOneByEmail(
       request.user.email_address,
     );
 
-    user.verification_id_image = request.verification_id_image;
-    user.verification_liveliness_image = request.verification_liveliness_image;
+    const verificationIdImage = files.find(file => file.fieldname === 'verification_id_image');
+    const verificationLivelinessImage = files.find(file => file.fieldname === 'verification_liveliness_image');
+
+    if (!verificationIdImage) {
+      throw new CustomException('Verification ID image required');
+    }
+
+    if (!verificationLivelinessImage) {
+      throw new CustomException('Verification liveliness image required');
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('image', verificationIdImage.buffer.toString('base64'));
+      const response1 = await this.httpService.post(`https://api.imgbb.com/1/upload?expiration=600&key=6a9403de70b295df735a0567a805019c`, formData).toPromise()
+      user.verification_id_image = response1.data.data.url
+    } catch (error) {
+      // Handle error
+      throw new CustomException('Failed to post data to external API');
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('image', verificationLivelinessImage.buffer.toString('base64'));
+      const response2 = await this.httpService.post(`https://api.imgbb.com/1/upload?expiration=600&key=6a9403de70b295df735a0567a805019c`, formData).toPromise()
+      user.verification_liveliness_image = response2.data.data.url
+    } catch (error) {
+      // Handle error
+      throw new CustomException('Failed to post data to external API');
+    }
+
     user.verification_status = 'pending';
 
     return await this.userService.updateUser(user);
+
   }
 }

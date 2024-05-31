@@ -14,7 +14,7 @@ export class AuthMiddleware implements NestMiddleware {
     private readonly jwtService: JwtService,
     private readonly userService: UsersService,
   ) {}
-  async use(req: Request, res: Response, next: NextFunction) {
+  async use(req: Request & { user: any }, res: Response, next: NextFunction) {
     // Check if Authorization header is present
     //console.log("path", req.baseUrl)
 
@@ -45,6 +45,7 @@ export class AuthMiddleware implements NestMiddleware {
 
       // Attach the email address to the request object for future use
       req.body.user = { ...decodedToken };
+      req.user = { ...decodedToken };
 
       //console.log(req.body)
 

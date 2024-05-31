@@ -32,11 +32,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { UsersService } from './users/users.service';
 import { CurrencyNetworkEntity } from './currencies/entities/currency_networks.entity';
 import { AdminModule } from './admin/admin.module';
+import { UploadModule } from './upload/upload.module';
+import {HttpModule} from "@nestjs/axios";
 
 @Module({
   imports: [
+      HttpModule,
     ConfigModule.forRoot(),
-    //HttpModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
@@ -83,6 +85,7 @@ import { AdminModule } from './admin/admin.module';
     SettingsModule,
     CurrenciesModule,
     AdminModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [

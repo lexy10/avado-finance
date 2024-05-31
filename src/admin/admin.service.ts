@@ -24,11 +24,37 @@ export class AdminService {
   }
 
   async getAllUsers() {
-    return await this.userService.allUsers()
+    return await this.userService.allUsersPendingVerification()
   }
 
   async getAllP2PPayments() {
-    return await this.transactionService.allP2PTransactions()
+    const pendingPayments = await this.transactionService.allPendingP2PTransactions()
+
+    const transformedPayments = await Promise.all(
+        pendingPayments.map(async payment => {
+          return {
+            id: payment.id,
+            amount: payment.amount,
+            amount_in_usd: payment.amount_in_usd,
+            user_full_name: payment.user.full_name,
+            user_email_address: payment.user.email_address,
+            status: payment.transaction_status,
+            payment_account: await this.getPaymentAccount(payment.to_wallet_address),
+            createdAt: payment.createdAt,
+          };
+        })
+    );
+
+    return transformedPayments;
+  }
+
+  async getPaymentAccount(id) {
+    const account = await this.P2PService.findOneById(id)
+    return {
+      account_name: account.account_name,
+      account_number: account.account_number,
+      bank_name: account.bank_name
+    }
   }
 
   async getAllDepositAccounts() {
@@ -60,24 +86,33 @@ export class AdminService {
       throw new CustomException('Payment not found')
 
     // get the user with the payment
-    const user = await this.userService.findOneById(transaction.user)
+    const user = await this.userService.findOneById(transaction.user.id)
 
     if (!user)
       throw new CustomException('No User attached to this payment')
+
+    const depositAccount = await this.P2PService.findOneById(transaction.to_wallet_address)
 
     const verificationStatuses = ['pending', 'success', 'failed']
 
     if (!requestBody.status || !verificationStatuses.includes(requestBody.status))
       throw new CustomException('Invalid verification Status')
 
-    const amount = transaction.amount
-    user[transaction.currency + '_balance'] += amount
+   if (transaction.transaction_status == 'pending') {
+     const amount = transaction.amount
+     user[transaction.currency + '_balance'] += amount
 
-    transaction.transaction_status = requestBody.status
+     transaction.transaction_status = requestBody.status
 
-    await this.userService.updateUser(user)
+     await this.userService.updateUser(user)
 
-    await this.emailService.sendP2PDepositConfirmation(user, formatBalance(amount, transaction.currency))
+     if (depositAccount) {
+       depositAccount.limit += amount
+       await this.P2PService.updateAccount(depositAccount)
+     }
+
+     await this.emailService.sendP2PDepositConfirmation(user, formatBalance(amount, transaction.currency))
+   }
 
     return await this.transactionService.createTransaction(transaction)
   }

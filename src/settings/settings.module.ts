@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import { SettingsService } from './settings.service';
 import { SettingsController } from './settings.controller';
 import { ConfigModule } from '@nestjs/config';
@@ -10,6 +11,7 @@ import { UserEntity } from '../users/entities/user.entity';
 
 @Module({
   imports: [
+      HttpModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forFeature([SettingsEntity, UserEntity]),
   ],

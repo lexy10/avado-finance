@@ -56,10 +56,10 @@ export class TransactionsService {
     });
   }
 
-  async allP2PTransactions() {
+  async allPendingP2PTransactions() {
     return await this.transactionRepository.find({
-      where: { type: 'P2P Deposit', currency: 'ngn' },
-      //relations: ['user'],
+      where: { type: 'P2P Deposit', currency: 'ngn', transaction_status: 'pending' },
+      relations: ['user'],
       order: {
         id: 'DESC',
       },
@@ -67,7 +67,10 @@ export class TransactionsService {
   }
 
   async findOneById(transaction_id) {
-    return await this.transactionRepository.findOneBy({ id: transaction_id })
+    return await this.transactionRepository.findOne({
+      where: { id: transaction_id },
+      relations: ['user'],
+    })
   }
 
   findRootKeyByNetworkName(networkName) {

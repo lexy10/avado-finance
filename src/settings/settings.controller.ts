@@ -10,14 +10,30 @@ import {
   Res,
   HttpStatus,
   Put,
-  BadRequestException,
+  BadRequestException, UseInterceptors, UploadedFile, UploadedFiles,
 } from '@nestjs/common';
 import { SettingsService } from './settings.service';
 import { CreateSettingDto } from './dto/create-setting.dto';
 import { UpdateSettingDto } from './dto/update-setting.dto';
-import { Request, Response } from 'express';
+import {Express, Request, Response} from 'express';
 import { CustomException } from '../exceptions/CustomException';
 import { isBase64 } from '../utils/base64.util';
+import {AnyFilesInterceptor, FileFieldsInterceptor, FileInterceptor, FilesInterceptor} from "@nestjs/platform-express";
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+
+
+interface MulterFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  destination: string;
+  filename: string;
+  path: string;
+  buffer: Buffer;
+}
 
 @Controller('settings')
 export class SettingsController {
@@ -193,31 +209,27 @@ export class SettingsController {
       });
     }
   }
+
+
+  /*uploadFile() {
+    console.log(file);
+    return {
+      message: 'File uploaded successfully',
+      filename: file.filename,
+    };
+  }*/
   @Post('/submit-verification')
-  async submitVerification(@Req() request: Request, @Res() response: Response) {
+  @UseInterceptors(AnyFilesInterceptor())
+  async submitVerification(@UploadedFiles() files: MulterFile[], @Req() request: Request, @Res() response: Response,) {
     try {
-      const requestBody = request.body;
-      if (!requestBody.verification_id_image)
-        throw new BadRequestException('Verification ID image required');
-
-      if (!requestBody.verification_liveliness_image)
-        throw new BadRequestException('Verification liveliness image Required');
-
-      if (
-        !isBase64(requestBody.verification_id_image) ||
-        !isBase64(requestBody.verification_liveliness_image)
-      )
-        throw new BadRequestException('Image must be in base64 format');
-
-      const submittedVerification =
-        await this.settingsService.submitVerification(requestBody);
+      const submittedVerification = await this.settingsService.submitVerification(files, request);
       response.status(HttpStatus.OK).json({
         status: true,
         message: 'Verification submitted successfully',
       });
     } catch (e) {
       response.status(HttpStatus.NOT_FOUND).json({
-        status: false,
+        status: 'false',
         message: e.message,
       });
     }
